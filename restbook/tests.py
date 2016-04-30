@@ -40,7 +40,7 @@ class ControllerFunctionalTest(_AbstractControllerTest, TestCase):
         restaurant = self.controller.restaurant_from_id(unique_id)
 
         assert(restaurant.name == name)
-        assert(restaurant.description == name)
+        assert(restaurant.description == description)
 
 
 ###############################################################################
