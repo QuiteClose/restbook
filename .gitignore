@@ -1,0 +1,12 @@
+# python files
+*.py[cod]
+__pycache__/
+
+# setuptools
+*.egg-info
+
+# temporary files
+*.swp
+
+# virtualenv
+/venv
