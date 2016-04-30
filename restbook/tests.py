@@ -58,6 +58,7 @@ class ControllerUnitTest(_AbstractControllerTest, TestCase):
         feeback = 'Controller module "{module}" should have attribute "{attr}"'
         expected = (
             'restaurant_create',
+            'restaurant_from_id',
         )
 
         for attribute in expected:
