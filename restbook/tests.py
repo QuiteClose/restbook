@@ -83,3 +83,33 @@ class ControllerUnitTest(_AbstractControllerTest, TestCase):
 
         assert(unique_id is not None)
 
+##############################
+
+    @given(name=text(), description=text())
+    def test_can_retreive_created_restaurants(self, name, description):
+        '''
+        After creating a restaurant we should be able to retreive it.
+        '''
+
+        unique_id = self.controller.restaurant_create(
+            name=name,
+            description=description
+        )
+
+        if unique_id:
+            restaurant = self.controller.restaurant_from_id(unique_id)
+            assert(restaurant.name == name)
+            assert(restaurant.description == description)
+
+##############################
+
+    def test_cannot_create_restaurants_without_a_name(self):
+        unique_id = self.controller.restaurant_create(
+            name='',
+            description='Example Description'
+        )
+
+        self.assertIsNone(
+            unique_id,
+            'Restaurant creation should fail if no name is provided.'
+        )
