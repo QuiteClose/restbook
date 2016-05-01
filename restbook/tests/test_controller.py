@@ -1,7 +1,7 @@
 
 from unittest import TestCase
 
-from hypothesis import given
+from hypothesis import assume, given
 from hypothesis.strategies import text
 
 from restbook import controller
@@ -42,6 +42,8 @@ class ControllerUnitTest(TestCase):
         create restaurants.
         '''
 
+        assume(name != '')
+
         unique_id = self.controller.restaurant_create(
             name=name,
             description=description
@@ -56,6 +58,8 @@ class ControllerUnitTest(TestCase):
         '''
         After creating a restaurant we should be able to retreive it.
         '''
+
+        assume(name != '')
 
         unique_id = self.controller.restaurant_create(
             name=name,

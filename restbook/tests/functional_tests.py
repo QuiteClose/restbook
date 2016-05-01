@@ -1,7 +1,7 @@
 
 from unittest import TestCase
 
-from hypothesis import given
+from hypothesis import assume, given
 from hypothesis.strategies import text
 
 from restbook import controller
@@ -23,6 +23,8 @@ class ControllerFunctionalTest(TestCase):
         '''
         We should be able to create and retreive restaurants.
         '''
+
+        assume(name != '')
 
         unique_id = self.controller.restaurant_create(
             name=name,

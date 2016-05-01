@@ -12,7 +12,13 @@ class Restaurant:
 
     @classmethod
     def validate(cls, restaurant):
-        pass
+        '''
+        Raises a ValueError if the given Restaurant does not pass tests
+        for validation. Otherwise returns None.
+        '''
+
+        if not restaurant.name or str(restaurant.name) == '':
+            raise ValueError
 
     def __init__(self, name, description='', opening_times=None, tables=None):
         self.name = name
