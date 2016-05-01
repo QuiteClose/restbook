@@ -44,4 +44,18 @@ class Restaurant:
 ###############################################################################
 
 class OpeningTimes(UserList):
-    pass
+    '''
+    OpeningTimes are represented as a list of tuples. Each tuple 
+    represents an opening period as a pair of integers. Each integer
+    is an offset in minutes since 0000 on Monday.
+    '''
+
+    @classmethod
+    def validate(cls, opening_times):
+        '''
+        Raises a ValueError if the given OpeningTimes does not pass tests
+        for validation. Otherwise returns None.
+        '''
+
+        pass
+
