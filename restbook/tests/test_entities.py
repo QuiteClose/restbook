@@ -34,14 +34,39 @@ class RestaurantUnitTest(TestCase):
 
 ##############################
 
-    @given(text(), text())
-    def test_restaurant_is_valid(self, name, description):
+    def test_restaurant_is_valid_represents_validate(self):
         '''
-        Any restaurant with a name and a description should be valid.
+        Restaurant.is_valid should corresponds to Restaurant.validate
+        according to any ValueError raised.
         '''
 
-        restaurant = entities.Restaurant(name=name, description=description)
-        assert(restaurant.is_valid())
+        def always_ValueError(a, b): raise ValueError;
+        def never_ValueError(a, b): pass;
+
+        restaurant = entities.Restaurant(name='Safe', description='Example')
+        stash = entities.Restaurant.validate
+
+        try:
+            entities.Restaurant.validate = always_ValueError
+            self.assertFalse(
+                restaurant.is_valid(),
+                'If Restaurant.validate raises a ValueError '
+                'restaurant.is_valid should return False.'
+            )
+
+            entities.Restaurant.validate = never_ValueError
+            self.assertTrue(
+                restaurant.is_valid(),
+                'If Restaurant.validate does not raise a ValueError '
+                'restaurant.is_valid should return True.'
+            )
+        except ValueError:
+            self.fail(
+                'If Restaurant.validate raises a ValueError '
+                'it should be caught by Restaurant.is_valid.'
+            )
+        finally:
+            entities.Restaurant.validate = stash
 
 ##############################
 
@@ -50,13 +75,27 @@ class RestaurantUnitTest(TestCase):
         Any restaurant without a name must fail validation.
         '''
 
-        self.assertFalse(
-            entities.Restaurant(name=None).is_valid(),
-            'Restaurant names cannot be None.'
-        )
+        no_name = entities.Restaurant(name=None)
+        empty_name = entities.Restaurant(name='')
 
-        self.assertFalse(
-            entities.Restaurant(name='').is_valid(),
-            "Restaurant names cannot be ''."
-        )
+        try:
+            entities.Restaurant.validate(no_name)
+        except ValueError:
+            pass
+        else:
+            self.fail(
+                'When name is None Restaurant.validate should '
+                'raise a ValueError.'
+            )
+
+        try:
+            entities.Restaurant.validate(empty_name)
+        except ValueError:
+            pass
+        else:
+            self.fail(
+                'When name is \'\' Restaurant.validate should '
+                'raise a ValueError.'
+            )
+
 
