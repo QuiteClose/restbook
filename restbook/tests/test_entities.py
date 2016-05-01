@@ -2,9 +2,10 @@
 from unittest import TestCase
 
 from hypothesis import given
-from hypothesis.strategies import lists, text
+from hypothesis.strategies import integers, lists, text, tuples
 
 from restbook import entities
+from restbook.tests import strategies
 
 ###############################################################################
 
@@ -103,7 +104,6 @@ class RestaurantUnitTest(TestCase):
                 'raise a ValueError.'
             )
 
-
 ##############################
 
     def test_opening_times_must_be_iterable(self):
@@ -117,3 +117,32 @@ class RestaurantUnitTest(TestCase):
             restaurant.opening_times.__iter__(),
             'A restaurants opening times should be iterable.'
         )
+
+###############################################################################
+
+class OpeningTimesUnitTest(TestCase):
+    '''
+    Unit tests for the OpeningTimes Entity
+    '''
+
+    @given(times=strategies.opening_times)
+    def test_opening_times_may_be_tuples_of_integers(self, times):
+        '''
+        Uses the opening_times strategy to generate random valid
+        opening times represented as a list of tuples. Each tuple should
+        be a pair of integers representing start and end times as an
+        offset from 0000 on Monday.
+        '''
+
+        try:
+            opening_times = entities.OpeningTimes(times)
+            entities.OpeningTimes.validate(opening_times)
+        except ValueError:
+            self.fail(
+                'Opening times should be definable in terms of '
+                'a list of tuples as of a pair of integers.'
+            )
+
+
+##############################
+
