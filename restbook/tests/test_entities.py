@@ -146,3 +146,30 @@ class OpeningTimesUnitTest(TestCase):
 
 ##############################
 
+    def test_opening_times_should_start_after_0(self):
+        '''
+        The first start-time should be zero or greater.
+        '''
+
+        valid_times = entities.OpeningTimes([(0,1)])
+        invalid_times = entities.OpeningTimes([(-1,1)])
+
+        try:
+            entities.OpeningTimes.validate(valid_times)
+        except ValueError:
+            self.fail(
+                'Opening times are valid when the first start time is >= 0'
+            )
+
+        try:
+            entities.OpeningTimes.validate(invalid_times)
+        except ValueError:
+            pass
+        else:
+            self.fail(
+                'Opening times are invalid when the first start time is < 0'
+            )
+
+
+
+
