@@ -10,11 +10,24 @@ class Restaurant:
     opening times and a series of tables of different sizes.
     '''
 
-    def __init__(self, name, description, opening_times=None, tables=None):
+    @classmethod
+    def validate(cls, restaurant):
+        pass
+
+    def __init__(self, name, description='', opening_times=None, tables=None):
         self.name = name
         self.description = description
         self.opening_times = opening_times
         self.tables = tables
 
     def is_valid(self):
-        return True
+        '''
+        Calls Restaurant.validate on self. Catches any ValueErrors
+        and returns True or False depending upon the result.
+        '''
+        try:
+            self.validate(self)
+        except ValueError:
+            return False
+        else:
+            return True
