@@ -54,8 +54,13 @@ class OpeningTimes(UserList):
     def validate(cls, opening_times):
         '''
         Raises a ValueError if the given OpeningTimes does not pass tests
-        for validation. Otherwise returns None.
+        for validation. Otherwise returns True.
         '''
 
-        pass
+        if not len(opening_times):
+            return True
+        elif opening_times[0][0] < 0:
+            raise ValueError
+        else:
+            return True
 
