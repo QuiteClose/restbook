@@ -99,3 +99,16 @@ class RestaurantUnitTest(TestCase):
             )
 
 
+##############################
+
+    def test_opening_times_must_be_iterable(self):
+        '''
+        We should be able to iterate over opening times.
+        '''
+
+        restaurant = entities.Restaurant(name='Safe', description='Example')
+
+        self.assertIsNotNone(
+            restaurant.opening_times.__iter__(),
+            'A restaurants opening times should be iterable.'
+        )
