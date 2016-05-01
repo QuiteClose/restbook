@@ -143,7 +143,6 @@ class OpeningTimesUnitTest(TestCase):
                 'a list of tuples as of a pair of integers.'
             )
 
-
 ##############################
 
     def test_opening_times_should_start_after_0(self):
@@ -171,5 +170,30 @@ class OpeningTimesUnitTest(TestCase):
             )
 
 
+##############################
+
+    def test_opening_times_should_not_overlap(self):
+        '''
+        The start-time of a period should be >= the previous end-time.
+        '''
+
+        valid_times = entities.OpeningTimes([(0,100), (100, 200)])
+        invalid_times = entities.OpeningTimes([(0,100), (99, 200)])
+
+        try:
+            entities.OpeningTimes.validate(valid_times)
+        except ValueError:
+            self.fail(
+                'Opening times are valid when they do not overlap.'
+            )
+
+        try:
+            entities.OpeningTimes.validate(invalid_times)
+        except ValueError:
+            pass
+        else:
+            self.fail(
+                'Opening times are invalid when they overlap.'
+            )
 
 
