@@ -2,7 +2,7 @@
 from unittest import TestCase
 
 from hypothesis import given
-from hypothesis.strategies import text
+from hypothesis.strategies import lists, text
 
 from restbook import entities
 
@@ -13,7 +13,12 @@ class RestaurantUnitTest(TestCase):
     Unit tests for the Restaurant Entity
     '''
 
-    @given(text(), text(), text(), text())
+    @given(
+        name=text(),
+        description=text(),
+        opening_times=lists(text()),
+        tables=text()
+    )
     def test_restaurant_init(self, name, description, opening_times, tables):
         '''
         The Restaurant.__init__ method should assign the given

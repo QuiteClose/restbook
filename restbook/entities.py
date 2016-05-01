@@ -3,6 +3,9 @@
 
 ###############################################################################
 
+from collections import UserList
+
+###############################################################################
 
 class Restaurant:
     '''
@@ -23,7 +26,7 @@ class Restaurant:
     def __init__(self, name, description='', opening_times=None, tables=None):
         self.name = name
         self.description = description
-        self.opening_times = opening_times
+        self.opening_times = OpeningTimes(opening_times)
         self.tables = tables
 
     def is_valid(self):
@@ -37,3 +40,8 @@ class Restaurant:
             return False
         else:
             return True
+
+###############################################################################
+
+class OpeningTimes(UserList):
+    pass
