@@ -456,6 +456,8 @@ class MinuteOffsetUnitTest(TestCase):
             'Minutes in week must equal 60 * 24 * 7.'
         )
 
+##############################
+
     def test_conversion_from_strings(self):
         '''
         Should convert from 'Monday 00.00' to 0 or 'Monday 20.00' to 1200.
@@ -469,6 +471,7 @@ class MinuteOffsetUnitTest(TestCase):
             (5250, 'Thursday 15.30'),
             (7020, 'Friday 21.00'),
             (10079, 'Sunday 23.59'),
+            (10139, 'Sunday 24.59'), # hours should be able to wrap to next day
         )
 
         for example in sample:
@@ -482,5 +485,4 @@ class MinuteOffsetUnitTest(TestCase):
                 '"{string}" to {offset}.'.format(string=given_string,
                                                  offset=expected_result)
             )
-
 
