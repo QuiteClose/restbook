@@ -118,6 +118,49 @@ class RestaurantUnitTest(TestCase):
             'A restaurants opening times should be iterable.'
         )
 
+##############################
+
+    @given(times=strategies.opening_times)
+    def test_create_restaurants_with_opening_times(self, times):
+        '''
+        We should be able to create restaurants with opening times.
+        '''
+
+        restaurant = entities.Restaurant(
+            name='Safe Example',
+            opening_times=times
+        )
+
+        if not restaurant.is_valid():
+            self.fail('Restaurant should validate with opening times.')
+
+        if len(restaurant.opening_times) != len(times):
+            self.fail('Restaurants should store all given opening times.')
+
+##############################
+
+    def test_restaurants_should_include_opening_times_in_validation(self):
+        '''
+        Restaurant validation should validate opening times.
+        '''
+
+        valid_times = entities.OpeningTimes([(0, 1)])
+        invalid_times = entities.OpeningTimes([(2, 1)])
+
+        restaurant = entities.Restaurant(name='Safe Example')
+
+        restaurant.opening_times = valid_times
+        self.assertTrue(
+            restaurant.is_valid(),
+            'Restaurants should validate with valid opening hours.'
+        )
+
+        restaurant.opening_times = invalid_times
+        self.assertFalse(
+            restaurant.is_valid(),
+            'Restaurants should not validate with invalid opening hours.'
+        )
+
 ###############################################################################
 
 class OpeningTimesUnitTest(TestCase):
