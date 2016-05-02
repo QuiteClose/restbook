@@ -308,3 +308,39 @@ class OpeningTimesUnitTest(TestCase):
                 'overlaps the first start-time.'
             )
 
+##############################
+
+    def test_is_valid_represents_validate(self):
+        '''
+        OpeningTimes.is_valid should correspond to OpeningTimes.validate
+        according to any ValueError raised.
+        '''
+
+        def always_ValueError(a, b): raise ValueError;
+        def never_ValueError(a, b): pass;
+
+        opening_times = entities.OpeningTimes([(0,1)])
+        stash = entities.OpeningTimes.validate
+
+        try:
+            entities.OpeningTimes.validate = always_ValueError
+            self.assertFalse(
+                opening_times.is_valid(),
+                'If OpeningTimes.validate raises a ValueError '
+                'OpeningTimes.is_valid should return False.'
+            )
+
+            entities.OpeningTimes.validate = never_ValueError
+            self.assertTrue(
+                restaurant.is_valid(),
+                'If OpeningTimes.validate does not raise a ValueError '
+                'restaurant.is_valid should return True.'
+            )
+        except ValueError:
+            self.fail(
+                'If OpeningTimes.validate raises a ValueError '
+                'it should be caught by OpeningTimes.is_valid.'
+            )
+        finally:
+            entities.OpeningTimes.validate = stash
+
