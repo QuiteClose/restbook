@@ -196,4 +196,44 @@ class OpeningTimesUnitTest(TestCase):
                 'Opening times are invalid when they overlap.'
             )
 
+##############################
+
+    def test_last_opening_time_does_not_overlap_first(self):
+        '''
+        The last end-time should not overlap the first start-time.
+        '''
+
+        MINUTES_IN_WEEK = 10080
+
+        valid_times = entities.OpeningTimes(
+            [
+                (0, 1),
+                (MINUTES_IN_WEEK, MINUTES_IN_WEEK)
+            ]
+        )
+
+        invalid_times = entities.OpeningTimes(
+            [
+                (0, 1),
+                (MINUTES_IN_WEEK+1, MINUTES_IN_WEEK+1)
+            ]
+        )
+
+        try:
+            entities.OpeningTimes.validate(valid_times)
+        except ValueError:
+            self.fail(
+                'Opening times are valid when the last end-time '
+                'does not overlap the first start-time.'
+            )
+
+        try:
+            entities.OpeningTimes.validate(invalid_times)
+        except ValueError:
+            pass
+        else:
+            self.fail(
+                'Opening times are invalid when the last end-time '
+                'overlaps the first start-time.'
+            )
 
