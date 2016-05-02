@@ -455,3 +455,31 @@ class MinuteOffsetUnitTest(TestCase):
             60 * 24 * 7,
             'Minutes in week must equal 60 * 24 * 7.'
         )
+
+    def test_conversion_from_strings(self):
+        '''
+        Should convert from 'Monday 0000' to 0 or 'Monday 2000' to 1200.
+        '''
+
+        sample = (
+            (0, 'Monday 00.00'),
+            (61, 'Monday 01.01'),
+            (1200, 'Monday 20.00'),
+            (3480, 'Wednesday 10.00'),
+            (5250, 'Thursday 15.30'),
+            (7030, 'Friday 21.00'),
+            (10079, 'Sunday 23.59'),
+        )
+
+        for example in sample:
+            expected_result = example[0]
+            given_string = example[1]
+
+            self.assertEqual(
+                expected_result,
+                entities.MinuteOffset.from_string(given_string),
+                'MinuteOffset.from_string should convert '
+                '"{string}" to {offset}.'.format(string=given_string,
+                                                 offset=expected_result)
+            )
+
