@@ -1,4 +1,5 @@
 
+import datetime
 from unittest import TestCase
 
 from hypothesis import assume, given
@@ -572,4 +573,46 @@ class BookingUnitTest(TestCase):
         )
 
         assert(not booking.is_valid())
+
+##############################
+
+    def test_booking_is_valid_represents_validate(self):
+        '''
+        Booking.is_valid should corresponds to Booking.validate
+        according to any ValueError raised.
+        '''
+
+        def always_ValueError(a, b): raise ValueError;
+        def never_ValueError(a, b): pass;
+
+        booking = entities.Booking(
+            reference='Safe Example',
+            covers=1,
+            start=datetime.datetime.now(),
+            finish=datetime.datetime.now()
+        )
+
+        stash = entities.Booking.validate
+
+        try:
+            entities.Booking.validate = always_ValueError
+            self.assertFalse(
+                booking.is_valid(),
+                'If Booking.validate raises a ValueError '
+                'booking.is_valid should return False.'
+            )
+
+            entities.Booking.validate = never_ValueError
+            self.assertTrue(
+                booking.is_valid(),
+                'If Booking.validate does not raise a ValueError '
+                'booking.is_valid should return True.'
+            )
+        except ValueError:
+            self.fail(
+                'If Booking.validate raises a ValueError '
+                'it should be caught by Booking.is_valid.'
+            )
+        finally:
+            entities.Booking.validate = stash
 
