@@ -171,3 +171,15 @@ class OpeningTimes(UserList):
             return True
         pass
 
+###############################################################################
+
+class Booking:
+    '''
+    A booking has a reference that may or may not be unique. It also
+    has a number of covers (guests) and a start and finish-time
+    represented using datetime objects.
+    '''
+
+    def __init__(self, reference, covers, start, finish):
+        pass
+
