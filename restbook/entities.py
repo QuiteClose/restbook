@@ -70,11 +70,8 @@ class MinuteOffset(int):
 class OpeningTimes(UserList):
     '''
     OpeningTimes are represented as a list of tuples. Each tuple 
-    represents an opening period as a pair of integers. Each integer
-    is an offset in minutes since 0000 on Monday.
+    represents an opening period as a pair of MinuteOffsets
     '''
-
-    MINUTES_IN_WEEK = 60 * 24 * 7
 
     @classmethod
     def validate(cls, opening_times):
@@ -95,13 +92,13 @@ class OpeningTimes(UserList):
             return True
         elif opening_times[0][0] < 0:
             raise ValueError
-        elif opening_times[0][0] < (opening_times[-1][1]-cls.MINUTES_IN_WEEK):
+        elif opening_times[0][0] < (opening_times[-1][1]-MinuteOffset.MINUTES_IN_WEEK):
             raise ValueError
 
         previous_end_time = 0
 
         for period in opening_times:
-            if period[0] < previous_end_time or period[0] > cls.MINUTES_IN_WEEK:
+            if period[0] < previous_end_time or period[0] > MinuteOffset.MINUTES_IN_WEEK:
                 raise ValueError
             elif period[0] > period[1]:
                 raise ValueError
