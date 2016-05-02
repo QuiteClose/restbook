@@ -55,3 +55,72 @@ class SeatingPlanUnitTest(TestCase):
         )
 
 
+    def test_bookings_discarded_if_out_of_bounds(self):
+        '''
+        Bookings that are out of bounds should not be in the dictionary
+        that is returned.
+        '''
+
+        # Monday 2nd May 2016
+        year = 2016
+        month = 5
+        day = 2
+
+        start_time = entities.MinuteOffset.from_string('Monday 12.00')
+        end_time = entities.MinuteOffset.from_string('Monday 14.00')
+
+        bookings = [
+            entities.Booking(
+                reference='discarded_starts_too_soon',
+                covers=1,
+                start=datetime.datetime(year, month, day, 11, 0),
+                finish=datetime.datetime(year, month, day, 13, 0),
+            ),
+            entities.Booking(
+                reference='discarded_starts_too_late',
+                covers=1,
+                start=datetime.datetime(year, month, day, 14, 30),
+                finish=datetime.datetime(year, month, day, 15, 0),
+            ),
+            entities.Booking(
+                reference='discarded_finishes_too_late',
+                covers=1,
+                start=datetime.datetime(year, month, day, 13, 30),
+                finish=datetime.datetime(year, month, day, 15, 0),
+            ),
+            entities.Booking(
+                reference='kept',
+                covers=1,
+                start=datetime.datetime(year, month, day, 12, 0),
+                finish=datetime.datetime(year, month, day, 14, 0),
+            ),
+            entities.Booking(
+                reference='kept',
+                covers=1,
+                start=datetime.datetime(year, month, day, 12, 0),
+                finish=datetime.datetime(year, month, day, 13, 0),
+            ),
+            entities.Booking(
+                reference='kept',
+                covers=1,
+                start=datetime.datetime(year, month, day, 13, 0),
+                finish=datetime.datetime(year, month, day, 14, 0),
+            )
+        ]
+
+        plan = usecases.seating_plan(
+            year=year,
+            month=month,
+            day=day,
+            start_time=start_time,
+            end_time=end_time,
+            tables=[],
+            bookings=bookings
+        )
+
+        self.assertDictEqual(
+            {None: [x for x in bookings if x.reference == 'kept']},
+            plan,
+            'Bookings should be discarded if they are not within time.'
+        )
+
