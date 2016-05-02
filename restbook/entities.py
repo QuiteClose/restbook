@@ -17,7 +17,7 @@ class Restaurant:
     def validate(cls, restaurant):
         '''
         Raises a ValueError if the given Restaurant does not pass tests
-        for validation. Otherwise returns None.
+        for validation. Otherwise returns True.
         '''
 
         if not restaurant.name or str(restaurant.name) == '':
@@ -25,13 +25,26 @@ class Restaurant:
         elif not restaurant.opening_times.is_valid():
             raise ValueError
 
+        for table_size in restaurant.tables:
+            if not isinstance(table_size, int) or table_size < 1:
+                raise ValueError
+
+        return True
+
 ##################################################
 
     def __init__(self, name, description='', opening_times=None, tables=None):
         self.name = name
         self.description = description
-        self.opening_times = OpeningTimes(opening_times)
-        self.tables = tables
+        if opening_times:
+            self.opening_times = OpeningTimes(opening_times)
+        else:
+            self.opening_times = OpeningTimes()
+
+        if tables:
+            self.tables = list(tables)
+        else:
+            self.tables = list()
 
 ##############################
 
