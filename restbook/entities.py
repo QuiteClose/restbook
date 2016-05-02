@@ -62,6 +62,11 @@ class Restaurant:
 
 ###############################################################################
 
+class MinuteOffset(int):
+    MINUTES_IN_WEEK = 60 * 24 * 7
+
+###############################################################################
+
 class OpeningTimes(UserList):
     '''
     OpeningTimes are represented as a list of tuples. Each tuple 
