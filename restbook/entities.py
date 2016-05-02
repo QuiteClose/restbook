@@ -61,8 +61,9 @@ class OpeningTimes(UserList):
         Zero-length opening times are valid. Otherwise OpeningTimes
         must conform to the following rules:
 
-        1. The first start-time must be >= 0 and < MINUTES_IN_WEEK
+        1. The first start-time must be >= 0
         2. No start-time should be < the previous end-time
+        3. No start-time should be after the end of the week.
         '''
 
         if not len(opening_times):
@@ -75,7 +76,7 @@ class OpeningTimes(UserList):
         previous_end_time = 0
 
         for period in opening_times:
-            if period[0] < previous_end_time:
+            if period[0] < previous_end_time or period[0] > cls.MINUTES_IN_WEEK:
                 raise ValueError
 
             previous_end_time = period[1]
