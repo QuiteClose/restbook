@@ -181,10 +181,15 @@ class Booking:
 
     @classmethod
     def validate(cls, booking):
-        pass
+
+        if booking.start > booking.finish:
+            raise ValueError
 
     def __init__(self, reference, covers, start, finish):
-        pass
+        self.reference = reference
+        self.covers = covers
+        self.start = start
+        self.finish = finish
 
 
     def is_valid(self):
@@ -198,3 +203,5 @@ class Booking:
             return False
         else:
             return True
+
+
