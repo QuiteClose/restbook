@@ -125,6 +125,8 @@ class OpeningTimesUnitTest(TestCase):
     Unit tests for the OpeningTimes Entity
     '''
 
+    MINUTES_IN_WEEK = 10080
+
     @given(times=strategies.opening_times)
     def test_opening_times_may_be_tuples_of_integers(self, times):
         '''
@@ -169,6 +171,38 @@ class OpeningTimesUnitTest(TestCase):
                 'Opening times are invalid when the first start time is < 0'
             )
 
+##############################
+
+    def test_opening_times_should_start_before_end_of_week(self):
+        '''
+        The first start-time should be < minutes in week.
+        '''
+
+        valid_times = entities.OpeningTimes([
+            (self.MINUTES_IN_WEEK, self.MINUTES_IN_WEEK)
+        ])
+
+        invalid_times = entities.OpeningTimes([
+            (self.MINUTES_IN_WEEK+1, self.MINUTES_IN_WEEK+1)
+        ])
+
+        try:
+            entities.OpeningTimes.validate(valid_times)
+        except ValueError:
+            self.fail(
+                'Opening times are valid when they start before the end of the week.'
+            )
+
+        try:
+            entities.OpeningTimes.validate(invalid_times)
+        except ValueError:
+            pass
+        else:
+            self.fail(
+                'Opening times are invalid when they start after the end of the week.'
+            )
+
+
 
 ##############################
 
@@ -203,21 +237,15 @@ class OpeningTimesUnitTest(TestCase):
         The last end-time should not overlap the first start-time.
         '''
 
-        MINUTES_IN_WEEK = 10080
+        valid_times = entities.OpeningTimes([
+            (0, 1),
+            (self.MINUTES_IN_WEEK, self.MINUTES_IN_WEEK)
+        ])
 
-        valid_times = entities.OpeningTimes(
-            [
-                (0, 1),
-                (MINUTES_IN_WEEK, MINUTES_IN_WEEK)
-            ]
-        )
-
-        invalid_times = entities.OpeningTimes(
-            [
-                (0, 1),
-                (MINUTES_IN_WEEK+1, MINUTES_IN_WEEK+1)
-            ]
-        )
+        invalid_times = entities.OpeningTimes([
+            (0, 1),
+            (self.MINUTES_IN_WEEK, self.MINUTES_IN_WEEK+1)
+        ])
 
         try:
             entities.OpeningTimes.validate(valid_times)
