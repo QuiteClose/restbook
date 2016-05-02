@@ -18,4 +18,6 @@ def seating_plan(year, month, day, start_time, end_time, tables, bookings):
     returned normally as part of the dictionary.
     '''
 
-    return {}
+    return {
+        None: bookings
+    }
