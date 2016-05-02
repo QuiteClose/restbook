@@ -169,7 +169,6 @@ class OpeningTimes(UserList):
             return False
         else:
             return True
-        pass
 
 ###############################################################################
 
@@ -180,9 +179,22 @@ class Booking:
     represented using datetime objects.
     '''
 
+    @classmethod
+    def validate(cls, booking):
+        pass
+
     def __init__(self, reference, covers, start, finish):
         pass
 
-    def is_valid(self):
-        return True
 
+    def is_valid(self):
+        '''
+        Calls self.validate on self. Catches any ValueErrors
+        and returns True or False depending upon the result.
+        '''
+        try:
+            self.validate(self)
+        except ValueError:
+            return False
+        else:
+            return True
