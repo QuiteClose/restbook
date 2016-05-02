@@ -245,6 +245,31 @@ class OpeningTimesUnitTest(TestCase):
                 'Opening times are invalid when they start after the end of the week.'
             )
 
+##############################
+
+    def test_opening_times_should_end_after_they_start(self):
+        '''
+        The start-time of a period should be <= the end-time.
+        '''
+
+        valid_times = entities.OpeningTimes([(0,1)])
+        invalid_times = entities.OpeningTimes([(1,0)])
+
+        try:
+            entities.OpeningTimes.validate(valid_times)
+        except ValueError:
+            self.fail(
+                'Opening times are valid when they end after they start.'
+            )
+
+        try:
+            entities.OpeningTimes.validate(invalid_times)
+        except ValueError:
+            pass
+        else:
+            self.fail(
+                'Opening times are invalid when they end before they start.'
+            )
 
 
 ##############################
@@ -332,7 +357,7 @@ class OpeningTimesUnitTest(TestCase):
 
             entities.OpeningTimes.validate = never_ValueError
             self.assertTrue(
-                restaurant.is_valid(),
+                opening_times.is_valid(),
                 'If OpeningTimes.validate does not raise a ValueError '
                 'restaurant.is_valid should return True.'
             )
