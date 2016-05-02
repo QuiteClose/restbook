@@ -16,9 +16,8 @@ class SeatingPlanUnitTest(TestCase):
         '''
 
         # Monday 2nd May 2016
-        year = 2016
-        month = 5
-        day = 2
+        context = datetime.datetime(2016, 5, 2)
+        year, month, day = context.year, context.month, context.day
 
         start_time = MinuteOffset.from_string('Monday 00.00')
         end_time = MinuteOffset.from_string('Sunday 23.59')
@@ -39,9 +38,7 @@ class SeatingPlanUnitTest(TestCase):
         ]
 
         plan = usecases.seating_plan(
-            year=year,
-            month=month,
-            day=day,
+            datetime_context=context,
             start_time=start_time,
             end_time=end_time,
             tables=[],
@@ -63,9 +60,8 @@ class SeatingPlanUnitTest(TestCase):
         '''
 
         # Monday 2nd May 2016
-        year = 2016
-        month = 5
-        day = 2
+        context = datetime.datetime(2016, 5, 2)
+        year, month, day = context.year, context.month, context.day
 
         start_time = MinuteOffset.from_string('Monday 12.00')
         end_time = MinuteOffset.from_string('Monday 14.00')
@@ -110,9 +106,7 @@ class SeatingPlanUnitTest(TestCase):
         ]
 
         plan = usecases.seating_plan(
-            year=year,
-            month=month,
-            day=day,
+            datetime_context=context,
             start_time=start_time,
             end_time=end_time,
             tables=[],
