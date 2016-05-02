@@ -18,7 +18,7 @@ class RestaurantUnitTest(TestCase):
         name=text(),
         description=text(),
         opening_times=lists(text()),
-        tables=text()
+        tables=lists(integers())
     )
     def test_restaurant_init(self, name, description, opening_times, tables):
         '''
@@ -35,8 +35,8 @@ class RestaurantUnitTest(TestCase):
 
         assert(name == restaurant.name)
         assert(description == restaurant.description)
-        assert(opening_times == restaurant.opening_times)
-        assert(tables == restaurant.tables)
+        assert(list(opening_times) == list(restaurant.opening_times))
+        assert(list(tables) == list(restaurant.tables))
 
 ##############################
 
@@ -160,6 +160,78 @@ class RestaurantUnitTest(TestCase):
             restaurant.is_valid(),
             'Restaurants should not validate with invalid opening hours.'
         )
+
+##############################
+
+    def test_restaurant_validation_should_fail_if_tables_are_not_ints(self):
+        '''
+        Tables should be a list of integers. Validation should fail otherwise.
+        '''
+
+        valid_restaurant = entities.Restaurant(
+            name='Safe Example',
+            tables=[1, 2, 3]
+        )
+
+        invalid_restaurant = entities.Restaurant(
+            name='Safe Example',
+            tables=[1, '2', 3]
+        )
+
+        self.assertTrue(
+            valid_restaurant.is_valid(),
+            'Restaurants should be valid '
+            'if their tables are a list of integers.'
+        )
+
+        self.assertFalse(
+            invalid_restaurant.is_valid(),
+            'Restaurants should be invalid '
+            'if their tables are not a list of integers.'
+        )
+
+
+##############################
+
+    def test_restaurant_validation_should_fail_if_tables_are_not_positive(self):
+        '''
+        Tables should be a list of positive integers.
+        Validation should fail otherwise.
+        '''
+
+        valid_restaurant = entities.Restaurant(
+            name='Safe Example',
+            tables=[1]
+        )
+
+        zero_restaurant = entities.Restaurant(
+            name='Safe Example',
+            tables=[0]
+        )
+
+        negative_restaurant = entities.Restaurant(
+            name='Safe Example',
+            tables=[-1]
+        )
+
+        self.assertTrue(
+            valid_restaurant.is_valid(),
+            'Restaurants should be valid '
+            'if their tables are a list of positive integers.'
+        )
+
+        self.assertFalse(
+            zero_restaurant.is_valid(),
+            'Restaurants should be invalid '
+            'if any of their tables are of zero size.'
+        )
+
+        self.assertFalse(
+            negative_restaurant.is_valid(),
+            'Restaurants should be invalid '
+            'if any of their tables have a negative size.'
+        )
+
 
 ###############################################################################
 
