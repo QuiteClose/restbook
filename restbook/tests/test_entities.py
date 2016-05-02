@@ -6,7 +6,7 @@ from hypothesis import assume, given
 from hypothesis.extra.datetime import datetimes
 from hypothesis.strategies import integers, lists, text, tuples
 
-from restbook import entities
+from restbook import entities, time
 from restbook.tests import strategies
 
 ###############################################################################
@@ -556,13 +556,13 @@ class BookingUnitTest(TestCase):
         When given a year, month, day
         '''
 
-        year = context.year
-        month = context.month
-    
-        start = entities.MinuteOffset.from_string('Monday 11.00')
-        end = entities.MinuteOffset.from_string('Monday 14.00')
+        year, month, day = context.year, context.month, context.day
 
-        
+        weekday = time.get_dateinfo(context).weekday
+
+        start = entities.MinuteOffset.from_integers(weekday, 11, 0)
+        end = entities.MinuteOffset.from_integers(weekday, 14, 0)
+
         bookings = [
             entities.Booking(
                 reference='starts_too_soon',
@@ -590,3 +590,10 @@ class BookingUnitTest(TestCase):
             ),
         ]
         
+
+        self.assertListEqual(
+            [x for x in bookings if x.reference == 'kept'],
+            [x for x in bookings if x.within(context, start, end)],
+            'Bookings.within should be False if a booking is not within time.'
+        )
+
