@@ -183,3 +183,6 @@ class Booking:
     def __init__(self, reference, covers, start, finish):
         pass
 
+    def is_valid(self):
+        return True
+
