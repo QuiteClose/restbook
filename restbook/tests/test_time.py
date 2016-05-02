@@ -1,7 +1,32 @@
 
 from unittest import TestCase
 
+from hypothesis import given
+from hypothesis.extra.datetime import datetimes
+
 from restbook import time 
+
+###############################################################################
+
+class DateInfoTest(TestCase):
+
+    @given(
+        datetime=datetimes()
+    )
+    def test_date_info_fields_are_correct(self, datetime):
+        '''
+        Test that get_dateinfo returns a correct DateInfo tuple.
+        '''
+        year, week_number, iso_day = datetime.isocalendar()
+        day = iso_day - 1
+
+        dateinfo = time.get_dateinfo(datetime)
+
+        assert(isinstance(dateinfo, time.DateInfo))
+        assert(datetime == dateinfo.datetime)
+        assert(year == dateinfo.year)
+        assert(week_number == dateinfo.week)
+        assert(day == dateinfo.weekday)
 
 ###############################################################################
 
