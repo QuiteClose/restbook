@@ -1,4 +1,7 @@
 
+from collections import OrderedDict
+
+
 def seating_plan(datetime_context, start_time, end_time, tables, bookings):
     '''
     Generates a seating plan as a dictionary where the keys are table
@@ -20,11 +23,16 @@ def seating_plan(datetime_context, start_time, end_time, tables, bookings):
     returned normally as part of the dictionary.
     '''
 
+    plan = OrderedDict(
+        [(None, [])] + [(i, []) for i in range(len(tables))]
+    )
+
     relevant_bookings = [
         b for b in bookings
         if b.within(datetime_context, start_time, end_time)
     ]
 
-    return {
-        None: relevant_bookings
-    }
+    plan[None] = relevant_bookings
+
+    return plan
+
