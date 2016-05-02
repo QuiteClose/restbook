@@ -486,3 +486,27 @@ class MinuteOffsetUnitTest(TestCase):
                                                  offset=expected_result)
             )
 
+##############################
+
+    def test_failure_when_converting_invalid_strings(self):
+        '''
+        MinuteOffset.from_string should fail when given invalid day
+        names or minutes that exceed 59.
+        '''
+
+        sample = (
+            'Someday 00.00',
+            'Monday 00.60',
+        )
+
+        for bad_example in sample:
+
+            try:
+                entities.MinuteOffset.from_string(bad_example)
+            except ValueError:
+                pass
+            else:
+                self.fail(
+                    'MinuteOffset.from_string should fail when '
+                    'given "{invalid}".'.format(invalid=bad_example)
+                )
