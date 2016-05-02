@@ -1,6 +1,9 @@
 
-from collections import OrderedDict
+'''Implements core functionality of the application.'''
 
+from collections import OrderedDict, namedtuple
+
+###############################################################################
 
 def seating_plan(datetime_context, start_time, end_time, tables, bookings):
     '''
@@ -23,16 +26,40 @@ def seating_plan(datetime_context, start_time, end_time, tables, bookings):
     returned normally as part of the dictionary.
     '''
 
-    plan = OrderedDict(
-        [(None, [])] + [(i, []) for i in range(len(tables))]
+    IndexedTable = namedtuple('IndexedTable', ['index', 'covers'])
+
+    plan = OrderedDict([(None, [])] + [(n, []) for n in range(len(tables))])
+
+    indexed_tables = sorted(
+        [
+            IndexedTable(index=n, covers=tables[n])
+            for n in range(len(tables))
+        ],
+        key=lambda x: x.covers,
     )
 
-    relevant_bookings = [
-        b for b in bookings
-        if b.within(datetime_context, start_time, end_time)
-    ]
+    relevant_bookings = sorted(
+        [
+            b for b in bookings
+            if b.within(datetime_context, start_time, end_time)
+        ],
+        key=lambda x: x.covers,
+        reverse=True
+    )
 
-    plan[None] = relevant_bookings
+    for booking in relevant_bookings:
+        suitable_tables = (
+            x for x in indexed_tables if booking.covers <= x.covers
+        )
+
+        for table in suitable_tables:
+            if plan[table.index]:
+                continue
+            else:
+                plan[table.index].append(booking)
+                break
+        else:
+            plan[None].append(booking)
 
     return plan
 
