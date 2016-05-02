@@ -10,5 +10,6 @@ setup(
     tests_require=[
         'hypothesis',
         'nose',
+        'pytz',
     ],
 )

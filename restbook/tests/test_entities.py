@@ -1,7 +1,8 @@
 
 from unittest import TestCase
 
-from hypothesis import given
+from hypothesis import assume, given
+from hypothesis.extra.datetime import datetimes
 from hypothesis.strategies import integers, lists, text, tuples
 
 from restbook import entities
@@ -510,3 +511,31 @@ class MinuteOffsetUnitTest(TestCase):
                     'MinuteOffset.from_string should fail when '
                     'given "{invalid}".'.format(invalid=bad_example)
                 )
+
+###############################################################################
+
+class BookingUnitTest(TestCase):
+    '''Test booking creation functionality.'''
+
+    @given(
+        reference=text(),
+        covers=integers(min_value=1),
+        start=datetimes(),
+        finish=datetimes()
+    )
+    def test_booking_can_be_created(self, reference, covers, start, finish):
+        '''
+        Tests that bookings can be created using just a booking
+        reference, the number of guests (covers) and a start and
+        end-time.
+        '''
+
+        assume(start < finish)
+
+        booking = entities.Booking(
+            reference=reference,
+            covers=covers,
+            start=start,
+            finish=finish
+        )
+
