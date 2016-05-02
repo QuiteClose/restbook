@@ -50,17 +50,33 @@ class OpeningTimes(UserList):
     is an offset in minutes since 0000 on Monday.
     '''
 
+    MINUTES_IN_WEEK = 60 * 24 * 7
+
     @classmethod
     def validate(cls, opening_times):
         '''
-        Raises a ValueError if the given OpeningTimes does not pass tests
-        for validation. Otherwise returns True.
+        Raises a ValueError if the given OpeningTimes does not pass
+        tests for validation. Otherwise returns True.
+
+        Zero-length opening times are valid. Otherwise OpeningTimes
+        must conform to the following rules:
+
+        1. The first start-time must be >= 0 and < MINUTES_IN_WEEK
+        2. No start-time should be < the previous end-time
         '''
 
         if not len(opening_times):
             return True
         elif opening_times[0][0] < 0:
             raise ValueError
-        else:
-            return True
+
+        previous_end_time = 0
+
+        for period in opening_times:
+            if period[0] < previous_end_time:
+                raise ValueError
+
+            previous_end_time = period[1]
+
+        return True
 
