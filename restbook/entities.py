@@ -69,6 +69,8 @@ class OpeningTimes(UserList):
             return True
         elif opening_times[0][0] < 0:
             raise ValueError
+        elif opening_times[0][0] < (opening_times[-1][1]-cls.MINUTES_IN_WEEK):
+            raise ValueError
 
         previous_end_time = 0
 
