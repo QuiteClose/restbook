@@ -3,6 +3,7 @@ import datetime
 from unittest import TestCase
 
 from restbook import entities, usecases
+from restbook.time import MinuteOffset
 
 ###############################################################################
 
@@ -19,8 +20,8 @@ class SeatingPlanUnitTest(TestCase):
         month = 5
         day = 2
 
-        start_time = entities.MinuteOffset.from_string('Monday 00.00')
-        end_time = entities.MinuteOffset.from_string('Sunday 23.59')
+        start_time = MinuteOffset.from_string('Monday 00.00')
+        end_time = MinuteOffset.from_string('Sunday 23.59')
 
         bookings = [
             entities.Booking(
@@ -66,8 +67,8 @@ class SeatingPlanUnitTest(TestCase):
         month = 5
         day = 2
 
-        start_time = entities.MinuteOffset.from_string('Monday 12.00')
-        end_time = entities.MinuteOffset.from_string('Monday 14.00')
+        start_time = MinuteOffset.from_string('Monday 12.00')
+        end_time = MinuteOffset.from_string('Monday 14.00')
 
         bookings = [
             entities.Booking(
