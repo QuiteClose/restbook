@@ -539,3 +539,4 @@ class BookingUnitTest(TestCase):
             finish=finish
         )
 
+        assert(booking.is_valid())
