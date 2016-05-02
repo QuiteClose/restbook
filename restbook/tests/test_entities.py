@@ -441,3 +441,17 @@ class OpeningTimesUnitTest(TestCase):
         finally:
             entities.OpeningTimes.validate = stash
 
+###############################################################################
+
+class MinuteOffsetUnitTest(TestCase):
+
+    def test_minutes_in_week(self):
+        '''
+        Minutes in week must be accurate.
+        '''
+
+        self.assertEqual(
+            entities.MinuteOffset.MINUTES_IN_WEEK,
+            60 * 24 * 7,
+            'Minutes in week must equal 60 * 24 * 7.'
+        )
