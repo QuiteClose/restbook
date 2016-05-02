@@ -3,6 +3,7 @@ import datetime
 from unittest import TestCase
 
 from hypothesis import given
+from hypothesis.strategies import integers, lists
 from hypothesis.extra.datetime import datetimes
 
 from restbook import entities, usecases
@@ -55,6 +56,7 @@ class SeatingPlanUnitTest(TestCase):
             'table is available.'
         )
 
+##############################
 
     @given(
         context=datetimes()
@@ -124,4 +126,94 @@ class SeatingPlanUnitTest(TestCase):
             plan,
             'Bookings should be discarded if they are not within time.'
         )
+
+##############################
+
+    @given(
+        tables=lists(integers(min_value=1, max_value=12))
+    )
+    def test_each_table_represented_in_plan(self, tables):
+        '''
+        The seating plan should have a key for each table given,
+        this should be an empty list by default.
+        '''
+
+        plan = usecases.seating_plan(
+            datetime_context=datetime.datetime.now(),
+            start_time=0,
+            end_time=0,
+            tables=tables,
+            bookings=[]
+        )
+
+        self.assertEqual(
+            len([None] + tables),
+            len(plan.keys()),
+            'A seating plan should have a key for each table given.'
+        )
+
+        for key in plan:
+            self.assertListEqual(
+                plan[key],
+                [],
+                'A seating plan should yield an empty list for each table when '
+                'no bookings are given.'
+            )
+
+##############################
+
+    @given(
+        context=datetimes(),
+        covers=integers(min_value=1, max_value=15),
+        tables=lists(integers(min_value=1, max_value=12))
+    )
+    def test_single_booking_assigned_to_smallest_table(
+        self,
+        context,
+        covers,
+        tables
+    ):
+        '''
+        A single booking should be assigned to the smallest
+        available table or None if no table is available.
+        '''
+
+        year, month, day = context.year, context.month, context.day
+
+        weekday = get_dateinfo(context).weekday
+
+        start = entities.MinuteOffset.from_integers(weekday, 12, 0)
+        end = entities.MinuteOffset.from_integers(weekday, 14, 0)
+
+        booking = entities.Booking(
+            reference='kept',
+            covers=covers,
+            start=datetime.datetime(year, month, day, 12, 30),
+            finish=datetime.datetime(year, month, day, 13, 30),
+        )
+
+        table_match = next((x for x in tables if x <= covers), None)
+
+        if table_match is not None:
+            expected_table = tables.index(table_match)
+        else:
+            expected_table = None
+
+        plan = usecases.seating_plan(
+            datetime_context=context,
+            start_time=start,
+            end_time=end,
+            tables=tables,
+            bookings=[booking]
+        )
+
+        assert(expected_table in plan)
+
+        self.assertListEqual(
+            plan[expected_table],
+            [booking],
+            'A single booking should be assigned to the first table that fits '
+            'or None if no table is suitable.'
+        )
+
 
