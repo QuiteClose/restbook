@@ -108,6 +108,8 @@ class MinuteOffset(int):
 
         if day not in cls.DAY_NAMES:
             raise ValueError
+        elif minute > 59:
+            raise ValueError
 
         day_offset = cls.DAY_NAMES.index(day) * cls.MINUTES_IN_DAY
         hour_offset = hour * cls.MINUTES_IN_HOUR
