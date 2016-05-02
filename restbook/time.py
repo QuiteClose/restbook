@@ -7,7 +7,31 @@ import re
 
 ###############################################################################
 
+'''
+The DateInfo tuple provides the year, week number and weekday number
+described by a particular datetime. This tuple should be used where
+weekday or week numbers are needed to ensure that data is calculated
+uniformly for comparisons.
+'''
+
 DateInfo = namedtuple('DateInfo', ['datetime', 'year', 'week', 'weekday'])
+
+##############################
+
+def get_dateinfo(datetime_context):
+    '''
+    Return a DateInfo tuple from the given datetime.
+    '''
+
+    year, week, iso_day = datetime_context.isocalendar()
+    weekday = iso_day - 1
+
+    return DateInfo(
+        datetime=datetime_context,
+        year=year,
+        week=week,
+        weekday=weekday
+    )
 
 ###############################################################################
 
