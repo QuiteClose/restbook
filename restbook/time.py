@@ -7,34 +7,6 @@ import re
 
 ###############################################################################
 
-'''
-The DateInfo tuple provides the year, week number and weekday number
-described by a particular datetime. This tuple should be used where
-weekday or week numbers are needed to ensure that data is calculated
-uniformly for comparisons.
-'''
-
-DateInfo = namedtuple('DateInfo', ['datetime', 'year', 'week', 'weekday'])
-
-##############################
-
-def get_dateinfo(datetime_context):
-    '''
-    Return a DateInfo tuple from the given datetime.
-    '''
-
-    year, week, iso_day = datetime_context.isocalendar()
-    weekday = iso_day - 1
-
-    return DateInfo(
-        datetime=datetime_context,
-        year=year,
-        week=week,
-        weekday=weekday
-    )
-
-###############################################################################
-
 class MinuteOffset(int):
     '''
     Times are given as an integer representing an offset in minutes
@@ -102,4 +74,41 @@ class MinuteOffset(int):
         minute = int(match.group('minute'))
 
         return cls.from_integers(cls.DAY_NAMES.index(day), hour, minute)
+
+###############################################################################
+
+'''
+The DateInfo tuple provides the year, week number and weekday number
+described by a particular datetime. The MinuteOffset since the start of
+that week is stored in the offset field. This tuple should be used where
+weekday or week numbers are needed to ensure that data is calculated
+uniformly for comparisons.
+'''
+
+DateInfo = namedtuple('DateInfo', 
+                      ['datetime', 'year', 'week', 'weekday', 'offset'])
+
+##############################
+
+def get_dateinfo(datetime_context):
+    '''
+    Return a DateInfo tuple from the given datetime.
+    '''
+
+    year, week, iso_day = datetime_context.isocalendar()
+    weekday = iso_day - 1
+
+    offset = MinuteOffset.from_integers(
+        weekday, 
+        datetime_context.hour,
+        datetime_context.minute
+    )
+
+    return DateInfo(
+        datetime=datetime_context,
+        year=year,
+        week=week,
+        weekday=weekday,
+        offset=offset
+    )
 

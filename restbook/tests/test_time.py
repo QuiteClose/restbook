@@ -23,11 +23,14 @@ class DateInfoTest(TestCase):
 
         dateinfo = time.get_dateinfo(datetime)
 
+        offset = (day * 60 * 24) + (datetime.hour * 60) + datetime.minute
+
         assert(isinstance(dateinfo, time.DateInfo))
         assert(datetime == dateinfo.datetime)
         assert(year == dateinfo.year)
         assert(week_number == dateinfo.week)
         assert(day == dateinfo.weekday)
+        assert(offset == dateinfo.offset)
 
 ###############################################################################
 
