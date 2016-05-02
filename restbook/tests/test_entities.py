@@ -560,7 +560,7 @@ class BookingUnitTest(TestCase):
 
         weekday = time.get_dateinfo(context).weekday
 
-        start = entities.MinuteOffset.from_integers(weekday, 11, 0)
+        start = entities.MinuteOffset.from_integers(weekday, 12, 0)
         end = entities.MinuteOffset.from_integers(weekday, 14, 0)
 
         bookings = [

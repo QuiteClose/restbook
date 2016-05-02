@@ -5,7 +5,7 @@
 
 from collections import UserList
 
-from restbook.time import MinuteOffset
+from restbook.time import MinuteOffset, get_dateinfo
 
 ###############################################################################
 
@@ -150,4 +150,26 @@ class Booking:
         else:
             return True
 
+    def within(self, datetime_context, start_time, end_time):
+        '''
+        Returns True or False depending upon whether the booking
+        falls within the given start_time and end_time.
+
+        The given start_time and end_time should be the MinuteOffset
+        since 0000 on Monday. The given datetime_context determines
+        which week the start_time and end_time refer to.
+        '''
+
+        context = get_dateinfo(datetime_context)
+        start_context = get_dateinfo(self.start)
+        finish_context = get_dateinfo(self.finish)
+
+        if context.week != start_context.week:
+            return False
+
+        if start_context.offset >= start_time and \
+            finish_context.offset <= end_time:
+            return True
+        else:
+            return False
 
