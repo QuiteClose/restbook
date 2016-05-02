@@ -2,6 +2,7 @@
 from unittest import TestCase
 
 from hypothesis import given
+from hypothesis.strategies import integers
 from hypothesis.extra.datetime import datetimes
 
 from restbook import time 
@@ -42,6 +43,28 @@ class MinuteOffsetUnitTest(TestCase):
             60 * 24 * 7,
             'Minutes in week must equal 60 * 24 * 7.'
         )
+
+##############################
+
+    @given(
+        day=integers(min_value=0, max_value=6),
+        hour=integers(min_value=0, max_value=72),
+        minute=integers(min_value=0, max_value=59)
+    )
+    def test_convert_from_ints(self, day, hour, minute):
+        '''
+        Should convert from three integers, one representing the
+        weekday (as per the DateInfo tuple) and the other two
+        representing the hour and minutes.
+        '''
+
+        day_offset = day * 60 * 24
+        hour_offset = hour * 60
+
+        expected_offset = day_offset + hour_offset + minute
+        actual_offset = time.MinuteOffset.from_integers(day, hour, minute)
+
+        assert(expected_offset == actual_offset)
 
 ##############################
 
