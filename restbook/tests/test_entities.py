@@ -517,6 +517,8 @@ class MinuteOffsetUnitTest(TestCase):
 class BookingUnitTest(TestCase):
     '''Test booking creation functionality.'''
 
+##############################
+
     @given(
         reference=text(),
         covers=integers(min_value=1),
@@ -540,3 +542,34 @@ class BookingUnitTest(TestCase):
         )
 
         assert(booking.is_valid())
+
+##############################
+
+    @given(
+        reference=text(),
+        covers=integers(min_value=1),
+        start=datetimes(),
+        finish=datetimes()
+    )
+    def test_booking_invalid_if_start_after_finish(
+        self,
+        reference,
+        covers,
+        start,
+        finish
+    ):
+        '''
+        A booking is invalid if it starts after it ends.
+        '''
+
+        assume(start > finish)
+
+        booking = entities.Booking(
+            reference=reference,
+            covers=covers,
+            start=start,
+            finish=finish
+        )
+
+        assert(not booking.is_valid())
+
