@@ -62,6 +62,29 @@ class MinuteOffset(int):
     STRING_PATTERN = r'^(?P<day>\w+) (?P<hour>\d\d)\.(?P<minute>\d\d)$'
 
     @classmethod
+    def from_integers(cls, day, hour, minute):
+        '''
+        Returns a MinuteOffset from the given day, hour and minute
+        offsets.
+
+        Raises a ValueError if any of the fields are less-than 0, if
+        day is greather-than 6 or if minute is greater-than 59.
+        '''
+
+        if day > 6 or minute > 59:
+            raise ValueError
+
+        if day < 0 or hour < 0 or minute < 0:
+            raise ValueError
+
+        day_offset = day * cls.MINUTES_IN_DAY
+        hour_offset = hour * cls.MINUTES_IN_HOUR
+
+        return cls(day_offset+hour_offset+minute)
+
+##############################
+
+    @classmethod
     def from_string(cls, string):
         '''
         Returns a MinuteOffset from the given string. Expects the given
@@ -78,13 +101,5 @@ class MinuteOffset(int):
         hour = int(match.group('hour'))
         minute = int(match.group('minute'))
 
-        if day not in cls.DAY_NAMES:
-            raise ValueError
-        elif minute > 59:
-            raise ValueError
-
-        day_offset = cls.DAY_NAMES.index(day) * cls.MINUTES_IN_DAY
-        hour_offset = hour * cls.MINUTES_IN_HOUR
-
-        return cls(day_offset+hour_offset+minute)
+        return cls.from_integers(cls.DAY_NAMES.index(day), hour, minute)
 
