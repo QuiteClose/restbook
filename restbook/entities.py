@@ -22,6 +22,10 @@ class Restaurant:
 
         if not restaurant.name or str(restaurant.name) == '':
             raise ValueError
+        elif not restaurant.opening_times.is_valid():
+            raise ValueError
+
+##################################################
 
     def __init__(self, name, description='', opening_times=None, tables=None):
         self.name = name
@@ -29,9 +33,11 @@ class Restaurant:
         self.opening_times = OpeningTimes(opening_times)
         self.tables = tables
 
+##############################
+
     def is_valid(self):
         '''
-        Calls Restaurant.validate on self. Catches any ValueErrors
+        Calls self.validate on self. Catches any ValueErrors
         and returns True or False depending upon the result.
         '''
         try:
@@ -64,6 +70,7 @@ class OpeningTimes(UserList):
         1. The first start-time must be >= 0
         2. No start-time should be < the previous end-time
         3. No start-time should be after the end of the week.
+        4. No start-time should be after it's end-time.
         '''
 
         if not len(opening_times):
@@ -78,8 +85,23 @@ class OpeningTimes(UserList):
         for period in opening_times:
             if period[0] < previous_end_time or period[0] > cls.MINUTES_IN_WEEK:
                 raise ValueError
+            elif period[0] > period[1]:
+                raise ValueError
 
             previous_end_time = period[1]
 
         return True
+
+    def is_valid(self):
+        '''
+        Calls self.validate on self. Catches any ValueErrors
+        and returns True or False depending upon the result.
+        '''
+        try:
+            self.validate(self)
+        except ValueError:
+            return False
+        else:
+            return True
+        pass
 
