@@ -2,8 +2,11 @@
 import datetime
 from unittest import TestCase
 
+from hypothesis import given
+from hypothesis.extra.datetime import datetimes
+
 from restbook import entities, usecases
-from restbook.time import MinuteOffset
+from restbook.time import MinuteOffset, get_dateinfo
 
 ###############################################################################
 
@@ -53,18 +56,21 @@ class SeatingPlanUnitTest(TestCase):
         )
 
 
-    def test_bookings_discarded_if_out_of_bounds(self):
+    @given(
+        context=datetimes()
+    )
+    def test_bookings_discarded_if_out_of_bounds(self, context):
         '''
         Bookings that are out of bounds should not be in the dictionary
         that is returned.
         '''
 
-        # Monday 2nd May 2016
-        context = datetime.datetime(2016, 5, 2)
         year, month, day = context.year, context.month, context.day
 
-        start_time = MinuteOffset.from_string('Monday 12.00')
-        end_time = MinuteOffset.from_string('Monday 14.00')
+        weekday = get_dateinfo(context).weekday
+
+        start = entities.MinuteOffset.from_integers(weekday, 12, 0)
+        end = entities.MinuteOffset.from_integers(weekday, 14, 0)
 
         bookings = [
             entities.Booking(
@@ -107,8 +113,8 @@ class SeatingPlanUnitTest(TestCase):
 
         plan = usecases.seating_plan(
             datetime_context=context,
-            start_time=start_time,
-            end_time=end_time,
+            start_time=start,
+            end_time=end,
             tables=[],
             bookings=bookings
         )

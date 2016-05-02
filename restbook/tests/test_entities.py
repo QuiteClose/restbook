@@ -553,7 +553,7 @@ class BookingUnitTest(TestCase):
     )
     def test_booking_within_times(self, context):
         '''
-        When given a year, month, day
+        Bookings.within should return false if it falls out-of-bounds.
         '''
 
         year, month, day = context.year, context.month, context.day
