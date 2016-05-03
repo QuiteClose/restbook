@@ -110,7 +110,7 @@ def booking_create(restaurant_id, reference, covers, start, finish):
     if space_available(requested_booking, tables, existing_bookings):
         id = generate_id()
         _bookings[id] = requested_booking
-        existing_bookings.append(requested_booking)
+        _bookings_by_restaurant[restaurant_id].append(requested_booking)
         return id
     else:
         return None
