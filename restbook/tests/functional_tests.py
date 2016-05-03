@@ -196,7 +196,7 @@ class ReportFunctionalTest(TestCase):
         tables=lists(integers(min_value=1, max_value=12)),
         date=datetimes()
     )
-    def test_restaurant_in_report(
+    def test_restaurant_name_in_report(
         self,
         name,
         description,
@@ -205,7 +205,7 @@ class ReportFunctionalTest(TestCase):
         date
     ):
         '''
-        The restaurant should appear in the generated report.
+        The restaurant name should appear in the generated report.
         '''
 
         restaurant_id= controller.restaurant_create(
@@ -215,11 +215,9 @@ class ReportFunctionalTest(TestCase):
             tables=tables
         )
 
-        restaurant = controller.restaurant_from_id(restaurant_id)
-
         report = controller.generate_report(restaurant_id, date)
 
         self.assertTrue(
-            str(restaurant) in report,
-            'A representation of the restaurant should appear in the report.'
+             name in report,
+            'The restaurant name should appear in the report.'
         )
