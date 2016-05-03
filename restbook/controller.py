@@ -132,4 +132,6 @@ def booking_from_id(id):
 ##############################
 
 def generate_report(restaurant_id, date):
-    return ''
+    restaurant = restaurant_from_id(restaurant_id)
+
+    return str(restaurant)
