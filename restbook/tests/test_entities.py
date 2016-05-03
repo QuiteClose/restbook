@@ -264,6 +264,23 @@ class OpeningTimesUnitTest(TestCase):
 
 ##############################
 
+    @given(times=strategies.opening_times_strings)
+    def test_opening_times_may_be_tuples_of_strings(self, times):
+        '''
+        OpeningTimes should convert strings into MinuteOffset integers.
+        '''
+
+        try:
+            opening_times = entities.OpeningTimes(times)
+            entities.OpeningTimes.validate(opening_times)
+        except ValueError:
+            self.fail(
+                'Opening times should be definable in terms of '
+                'a list of tuples as of a pair of strings.'
+            )
+
+##############################
+
     def test_opening_times_should_start_after_0(self):
         '''
         The first start-time should be zero or greater.

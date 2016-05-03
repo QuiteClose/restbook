@@ -101,6 +101,36 @@ class MinuteOffsetUnitTest(TestCase):
 
 ##############################
 
+    def test_conversion_to_strings(self):
+        '''
+        Should convert 0 to 'Monday 00.00' or 1200 to 'Monday 20.00'.
+        '''
+
+        sample = (
+            (0, 'Monday 00.00'),
+            (61, 'Monday 01.01'),
+            (1200, 'Monday 20.00'),
+            (3480, 'Wednesday 10.00'),
+            (5250, 'Thursday 15.30'),
+            (7020, 'Friday 21.00'),
+            (10079, 'Sunday 23.59'),
+            (10139, 'Sunday 24.59'), # hours should be able to wrap to next day
+        )
+
+        for example in sample:
+            expected_result = example[1]
+            given_offset = example[0]
+
+            self.assertEqual(
+                expected_result,
+                str(time.MinuteOffset(given_offset)),
+                'MinuteOffset.from_string should convert '
+                '"{offset}" to {string}.'.format(offset=given_offset,
+                                                 string=expected_result)
+            )
+
+##############################
+
     def test_failure_when_converting_invalid_strings(self):
         '''
         MinuteOffset.from_string should fail when given invalid day

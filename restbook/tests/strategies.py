@@ -3,28 +3,12 @@
 Custom strategies for use with the Hypothesis test framework.
 '''
 
+from restbook.time import MinuteOffset
+
 from hypothesis.strategies import integers, lists, tuples
 from hypothesis.strategies import composite
 
 MINUTES_IN_WEEK = 10080
-
-'''
-A time period consitutes two integers representing an offset in minutes
-from 0000 hours on Monday. The first offset is the start of the time
-period, the second offset the end of the time period. There are 10080
-minutes in a week, so it makes sense that the start-period should not
-exceed 10080.
-
-Therefore, our time_period test strategy should generate tuples of
-integer pairs. Each integer should be greater-than-or-equal-to zero.
-The first integer should be less-than-or-equal-to 10080. The second
-integer should be greater-than-or-equal-to the first integer.
-'''
-
-time_periods = tuples(
-    integers(min_value=0, max_value=MINUTES_IN_WEEK),
-    integers(min_value=0)
-).filter(lambda x: x[1] >= x[0])
 
 '''
 Opening times are a list of time periods, each of those being start and
@@ -122,4 +106,11 @@ not overlap the start-time of the first element.
 opening_times = opening_times_sample(
     max_overlap = 440
 ).filter(lambda x: x[0][0] > (x[-1][1] - MINUTES_IN_WEEK))
+
+
+
+
+opening_times_strings = opening_times.map(
+    lambda x: [(str(MinuteOffset(n[0])), str(MinuteOffset(n[1]))) for n in x]
+)
 
