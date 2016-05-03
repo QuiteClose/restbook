@@ -597,3 +597,70 @@ class BookingUnitTest(TestCase):
             'Bookings.within should be False if a booking is not within time.'
         )
 
+##############################
+
+    @given(
+        context=datetimes()
+    )
+    def test_booking_within_times(self, context):
+        '''
+        Bookings.overlaps should determine whether two bookings overlap.
+        '''
+
+        year, month, day = context.year, context.month, context.day
+
+        weekday = time.get_dateinfo(context).weekday
+
+        start = entities.MinuteOffset.from_integers(weekday, 12, 0)
+        end = entities.MinuteOffset.from_integers(weekday, 14, 0)
+
+        before = entities.Booking(
+            reference='control',
+            covers=1,
+            start=datetime.datetime(year, month, day, 10, 0),
+            finish=datetime.datetime(year, month, day, 13, 0),
+        )
+
+        after = entities.Booking(
+            reference='Does not clash with booking',
+            covers=1,
+            start=datetime.datetime(year, month, day, 13, 0),
+            finish=datetime.datetime(year, month, day, 16, 0),
+        )
+
+        both_clash = entities.Booking(
+            reference='Clashes with both bookings',
+            covers=1,
+            start=datetime.datetime(year, month, day, 12, 0),
+            finish=datetime.datetime(year, month, day, 14, 0),
+        )
+
+        self.assertFalse(
+            before.overlaps(after),
+            'Bookings.overlap should return False if two bookings do not clash.'
+        )
+
+        self.assertFalse(
+            after.overlaps(before),
+            'Bookings.overlap should return False if two bookings do not clash.'
+        )
+
+        self.assertTrue(
+            before.overlaps(both_clash),
+            'Bookings.overlap should return True if two bookings clash.'
+        )
+
+        self.assertTrue(
+            after.overlaps(both_clash),
+            'Bookings.overlap should return True if two bookings clash.'
+        )
+
+        self.assertTrue(
+            both_clash.overlaps(before),
+            'Bookings.overlap should return True if two bookings clash.'
+        )
+
+        self.assertTrue(
+            both_clash.overlaps(after),
+            'Bookings.overlap should return True if two bookings clash.'
+        )
