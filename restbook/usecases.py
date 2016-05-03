@@ -35,7 +35,7 @@ def seating_plan(datetime_context, start_time, end_time, tables, bookings):
             IndexedTable(index=n, covers=tables[n])
             for n in range(len(tables))
         ],
-        key=lambda x: x.covers,
+        key=lambda x: x.covers
     )
 
     relevant_bookings = sorted(
@@ -43,8 +43,7 @@ def seating_plan(datetime_context, start_time, end_time, tables, bookings):
             b for b in bookings
             if b.within(datetime_context, start_time, end_time)
         ],
-        key=lambda x: x.covers,
-        reverse=True
+        key=lambda x: x.covers
     )
 
     for booking in relevant_bookings:
