@@ -234,6 +234,49 @@ class RestaurantUnitTest(TestCase):
             'if any of their tables have a negative size.'
         )
 
+##############################
+
+    @given(
+        name=text(),
+        description=text(),
+        tables=lists(integers()),
+        times=strategies.opening_times_strings
+    )
+    def test_restaurant__str__(
+        self,
+        name,
+        description,
+        tables,
+        times
+    ):
+        '''
+        String representations of restaurants should include their name,
+        description, opening times and tables.
+        '''
+
+        restaurant = entities.Restaurant(
+            name=name,
+            description=description,
+            tables=tables,
+            opening_times=times
+        )
+
+        string = str(restaurant)
+
+        assert(name in string)
+        assert(description in string)
+
+        for n in range(len(tables)):
+            table_details = '{table_number}: {table_size}'.format(
+                table_number = n,
+                table_size = tables[n]
+            )
+            assert(table_details in string)
+
+        for open, close in times:
+            period = '{open}-{close}'.format(open=open, close=close)
+            assert(period in string)
+
 
 ###############################################################################
 
