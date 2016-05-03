@@ -7,7 +7,26 @@ from restbook.time import get_dateinfo
 
 ###############################################################################
 
-def seating_plan(datetime_context, start_time, end_time, tables, bookings):
+def relevant_bookings(bookings, datetime_context, start_offset, end_offset):
+    '''
+    Takes a list of bookings and returns a list of bookings that fall
+    within a time window.
+
+    The given datetime_context should be a datetime instance. This will
+    be used to determine the year and week number that 0000 on Monday
+    should be taken from. The given start_time and end_time should be
+    of type MinuteOffset delimiting the window after 0000 on Monday
+    that the time window represents.
+    '''
+
+    return [
+        b for b in bookings
+        if b.within(datetime_context, start_offset, end_offset)
+    ]
+
+###############################################################################
+
+def seating_plan(tables, bookings):
     '''
     Generates a seating plan as a dictionary where the keys are table
     numbers and the values a list of bookings assigned to that table.
@@ -16,16 +35,9 @@ def seating_plan(datetime_context, start_time, end_time, tables, bookings):
     tables size. The table's number is taken from its index in the
     given list.
 
-    The given datetime_context should be a datetime instance. This will
-    be used to determine the year and week number that 0000 on Monday
-    should be taken from. The given start_time and end_time should be
-    of type MinuteOffset delimiting the window after 0000 on Monday
-    that the seating plan should represent. Any bookings which do not
-    fall within the time window are discarded.
-
-    Bookings which fall within the time window but cannot be assigned a
-    table because of space will be assigned to the table None, and
-    returned normally as part of the dictionary.
+    Bookings which do not fit into the seating plan are assigned to a
+    table with the key None and returned normally as part of the
+    dictionary.
     '''
 
     IndexedTable = namedtuple('IndexedTable', ['index', 'covers'])
@@ -40,15 +52,7 @@ def seating_plan(datetime_context, start_time, end_time, tables, bookings):
         key=lambda x: x.covers
     )
 
-    relevant_bookings = sorted(
-        [
-            b for b in bookings
-            if b.within(datetime_context, start_time, end_time)
-        ],
-        key=lambda x: x.covers
-    )
-
-    for booking in relevant_bookings:
+    for booking in sorted(bookings, key=lambda x: x.covers):
         suitable_tables = (
             x for x in indexed_tables if booking.covers <= x.covers
         )
@@ -74,7 +78,8 @@ def space_available(requested_booking, tables, existing_bookings):
     existing bookings.
     '''
 
-    return True
+
+    return False
 
 ###############################################################################
 
