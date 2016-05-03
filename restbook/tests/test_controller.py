@@ -28,6 +28,7 @@ class ControllerUnitTest(TestCase):
             'restaurant_from_id',
             'booking_create',
             'booking_from_id',
+            'generate_report'
         )
 
         for attribute in expected:

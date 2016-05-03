@@ -3,6 +3,7 @@ from datetime import datetime
 from unittest import TestCase
 
 from hypothesis import assume, given
+from hypothesis.extra.datetime import datetimes
 from hypothesis.strategies import integers, lists, text
 
 from restbook import controller
@@ -180,3 +181,45 @@ class BookingsFunctionalTest(TestCase):
             'Making a booking should fail if the restaurant is full.'
         )
 
+###############################################################################
+
+class ReportFunctionalTest(TestCase):
+    '''
+    We should be able to create a report showing the expected number of
+    diners for a particular day.
+    '''
+
+    @given(
+        name=text(),
+        description=text(),
+        opening_times=strategies.opening_times,
+        tables=lists(integers(min_value=1, max_value=12)),
+        date=datetimes()
+    )
+    def test_restaurant_in_report(
+        self,
+        name,
+        description,
+        opening_times,
+        tables,
+        date
+    ):
+        '''
+        The restaurant should appear in the generated report.
+        '''
+
+        restaurant_id= controller.restaurant_create(
+            name=name,
+            description=description,
+            opening_times=opening_times,
+            tables=tables
+        )
+
+        restaurant = controller.restaurant_from_id(restaurant_id)
+
+        report = controller.generate_report(restaurant_id, date)
+
+        self.assertTrue(
+            str(restaurant) in report,
+            'A representation of the restaurant should appear in the report.'
+        )
