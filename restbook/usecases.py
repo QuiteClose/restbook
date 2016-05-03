@@ -76,10 +76,10 @@ def space_available(requested_booking, tables, existing_bookings):
 
 ###############################################################################
 
-def restaurant_open(restaurant, start, finish):
+def within_times(opening_times, start, finish):
     '''
     Returns True if the given start and finish datetime types describe
-    a time window within the restaurants opening times.
+    a time window within the given opening times.
     '''
 
     return True
