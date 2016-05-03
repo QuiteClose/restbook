@@ -50,6 +50,30 @@ class Restaurant:
 
 ##############################
 
+    def __str__(self):
+        output = []
+
+        output.append('Restaurant: {}'.format(self.name))
+        output.append('Description: {}'.format(self.description))
+
+        if self.tables:
+            output.append('Tables:')
+            for n in range(len(self.tables)):
+                output.append(
+                    '\t{table_number}: {covers}'.format(
+                        table_number=n,
+                        covers=self.tables[n]
+                    )
+                )
+        else:
+            output.append('Tables: None')
+
+        output.append('Opening-Times: ' + str(self.opening_times))
+
+        return '\n'.join(output)
+
+##############################
+
     def is_valid(self):
         '''
         Calls self.validate on self. Catches any ValueErrors
@@ -129,6 +153,15 @@ class OpeningTimes(UserList):
 
         super().__init__((convert(a), convert(b)) for a, b in given)
 
+##############################
+
+    def __str__(self):
+        return ' '.join(
+            '{start}-{end}'.format(start=str(start), end=str(end))
+            for start, end in self
+        )
+
+##############################
 
     def is_valid(self):
         '''

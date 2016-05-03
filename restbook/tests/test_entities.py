@@ -254,6 +254,9 @@ class RestaurantUnitTest(TestCase):
         description, opening times and tables.
         '''
 
+        assume(name != '')
+        assume(description != '')
+
         restaurant = entities.Restaurant(
             name=name,
             description=description,
