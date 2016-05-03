@@ -98,6 +98,6 @@ def within_times(opening_times, start, finish):
 
     for a, b in opening_times:
         if start_info.offset >= a and finish_info.offset <= b:
-            return True
+            return (a, b)
 
-    return False
+    return (None, None)
