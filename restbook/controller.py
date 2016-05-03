@@ -82,22 +82,24 @@ def booking_create(restaurant_id, reference, covers, start, finish):
     if not restaurant:
         return None
 
-    restaurant_open, restaurant_close = within_times(
+    restaurant_open = within_times(
         opening_times=restaurant.opening_times,
         start=start,
         finish=finish
     )
 
-    if restaurant_open is None:
+    if not restaurant_open:
         return None
+
+    opening_time, closing_time = restaurant_open[0]
 
     tables = restaurant.tables
 
     existing_bookings = relevant_bookings(
         bookings=_bookings_by_restaurant[restaurant_id],
         datetime_context=start,
-        start_offset=restaurant_open,
-        end_offset=restaurant_close
+        start_offset=opening_time,
+        end_offset=closing_time
     )
 
     requested_booking = entities.Booking(
