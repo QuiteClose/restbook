@@ -104,6 +104,32 @@ class OpeningTimes(UserList):
 
         return True
 
+    def __init__(self, given=None):
+        '''
+        Takes a list of tuples, each representing a pair of
+        MinuteOffsets. A single integer is enough to represent an
+        offset. If a string is provided a conversion will be attempted
+        which may raise a ValueError. If an iterable is provided then
+        a conversion from integers will be attempted which may also
+        raise a ValueError.
+        '''
+
+        def convert(n):
+            if isinstance(n, str):
+                return MinuteOffset.from_string(n)
+            try:
+                iter(n)
+            except TypeError:
+                return MinuteOffset(n)
+            else:
+                return MinuteOffset.from_integers(*n)
+
+        if given is None:
+            given = []
+
+        super().__init__((convert(a), convert(b)) for a, b in given)
+
+
     def is_valid(self):
         '''
         Calls self.validate on self. Catches any ValueErrors

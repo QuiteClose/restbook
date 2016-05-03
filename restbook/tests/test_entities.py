@@ -19,7 +19,7 @@ class RestaurantUnitTest(TestCase):
     @given(
         name=text(),
         description=text(),
-        opening_times=lists(text()),
+        opening_times=strategies.opening_times,
         tables=lists(integers())
     )
     def test_restaurant_init(self, name, description, opening_times, tables):
