@@ -389,21 +389,25 @@ class WithinTimesTest(TestCase):
             [(start_info.offset+1, finish_info.offset-1)]
         )
 
-        self.assertTrue(
+        self.assertEqual(
             usecases.within_times(open_for_given_times, start, finish),
-            'within_times should return True if times are suitable.'
+            open_for_given_times[0],
+            'within_times should return suitable opening times.'
         )
-        self.assertFalse(
+        self.assertEqual(
             usecases.within_times(closed_for_start, start, finish),
-            'within_times should return False if start time is unsuitable.'
+            (None, None),
+            'within_times should return (None, None) if start time is unsuitable.'
         )
 
-        self.assertFalse(
+        self.assertEqual(
             usecases.within_times(closed_for_finish, start, finish),
-            'within_times should return False if finish time is unsuitable.'
+            (None, None),
+            'within_times should return (None, None) if finish time is unsuitable.'
         )
 
-        self.assertFalse(
+        self.assertEqual(
             usecases.within_times(closed_for_both, start, finish),
-            'within_times should return False if times are unsuitable.'
+            (None, None),
+            'within_times should return (None, None) if times are unsuitable.'
         )
