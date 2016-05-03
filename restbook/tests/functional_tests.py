@@ -221,3 +221,36 @@ class ReportFunctionalTest(TestCase):
              name in report,
             'The restaurant name should appear in the report.'
         )
+
+##############################
+
+    @given(
+        date=datetimes(),
+        opening_times=strategies.opening_times_strings
+    )
+    def test_opening_times_in_report(
+        self,
+        date,
+        opening_times
+    ):
+        '''
+        The opening times for a given day should appear in the report.
+        '''
+
+        start_of_day = date.replace(hour=0, minute=0)
+        end_of_day = date.replace(hour=23, minute=59)
+
+        restaurant_id= controller.restaurant_create(
+            name='Safe',
+            description='Example',
+            opening_times=opening_times,
+            tables=[]
+        )
+
+        report = controller.generate_report(restaurant_id, date)
+
+        matching_times = starting_within_times(opening_times, start_of_day, end_of_day)
+
+        for opening_time, closing_time in matching_times:
+            assert('{}-{}'.format(opening_time, closing_time) in report)
+
