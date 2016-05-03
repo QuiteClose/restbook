@@ -31,6 +31,7 @@ class MinuteOffset(int):
     Minute offsets can be converted from strings with the format
     'DAY HH.MM' where day is the long name of a day.
     '''
+    STRING_FORMAT = '{day} {hour:02d}.{minute:02d}'
     STRING_PATTERN = r'^(?P<day>\w+) (?P<hour>\d\d)\.(?P<minute>\d\d)$'
 
     @classmethod
@@ -74,6 +75,34 @@ class MinuteOffset(int):
         minute = int(match.group('minute'))
 
         return cls.from_integers(cls.DAY_NAMES.index(day), hour, minute)
+
+##############################
+
+    def __str__(self):
+        '''
+        Converts an offset into a string in the form of DAY HH.MM. If
+        the offset carries into the next week, then the day will appear
+        as Sunday with the hours exceeding 24.
+        '''
+
+        day = self // self.MINUTES_IN_DAY
+
+        if day > 6:
+            day = 6
+
+        day_offset = day * self.MINUTES_IN_DAY
+
+        hour = (self-day_offset) // self.MINUTES_IN_HOUR
+        hour_offset = hour * self.MINUTES_IN_HOUR
+
+        minute = self - day_offset - hour_offset
+
+        return self.STRING_FORMAT.format(
+            day=self.DAY_NAMES[day],
+            hour=hour,
+            minute=minute
+        )
+
 
 ###############################################################################
 
