@@ -173,3 +173,12 @@ class Booking:
         else:
             return False
 
+##############################
+
+    def overlaps(self, booking):
+        '''
+        Returns True or False depending upon whether the given booking
+        overlaps self.
+        '''
+
+        return self.start < booking.finish and self.finish > booking.start
