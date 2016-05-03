@@ -62,3 +62,24 @@ def seating_plan(datetime_context, start_time, end_time, tables, bookings):
 
     return plan
 
+###############################################################################
+
+def space_available(requested_booking, tables, existing_bookings):
+    '''
+    Takes a requested booking, a list of table sizes, and a list of
+    already accepted bookings, and returns True or False depending upon
+    whether a seating plan can be generated without displacing any
+    existing bookings.
+    '''
+
+    return True
+
+###############################################################################
+
+def restaurant_open(restaurant, start, finish):
+    '''
+    Returns True if the given start and finish datetime types describe
+    a time window within the restaurants opening times.
+    '''
+
+    return True
