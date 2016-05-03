@@ -271,3 +271,57 @@ class SeatingPlanUnitTest(TestCase):
             'The earlier booking should get the table if bookings clash.'
         )
 
+##############################
+
+    @given(
+        context=datetimes(),
+        covers=integers(min_value=1, max_value=15),
+    )
+    def test_two_compatible_bookings_with_one_table(self, context, covers):
+        '''
+        Two bookings that do not clash should both be able to book a
+        single table.
+        '''
+
+        year, month, day = context.year, context.month, context.day
+
+        weekday = get_dateinfo(context).weekday
+
+        start = entities.MinuteOffset.from_integers(weekday, 12, 0)
+        end = entities.MinuteOffset.from_integers(weekday, 14, 0)
+
+        bookings = [
+            entities.Booking(
+                reference='earlier',
+                covers=covers,
+                start=datetime.datetime(year, month, day, 12, 0),
+                finish=datetime.datetime(year, month, day, 13, 0),
+            ),
+            entities.Booking(
+                reference='later',
+                covers=covers,
+                start=datetime.datetime(year, month, day, 13, 0),
+                finish=datetime.datetime(year, month, day, 14, 0),
+            )
+        ]
+
+        plan = usecases.seating_plan(
+            datetime_context=context,
+            start_time=start,
+            end_time=end,
+            tables=[covers],
+            bookings=bookings
+        )
+
+        self.assertListEqual(
+            plan[None],
+            [],
+            'Bookings should not be assigned to None if they do not clash.'
+        )
+
+        self.assertListEqual(
+            plan[0],
+            bookings,
+            'Bookings should be assigned to a table if they do not clash.'
+        )
+
