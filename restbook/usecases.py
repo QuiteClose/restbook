@@ -3,6 +3,8 @@
 
 from collections import OrderedDict, namedtuple
 
+from restbook.time import get_dateinfo
+
 ###############################################################################
 
 def seating_plan(datetime_context, start_time, end_time, tables, bookings):
@@ -80,6 +82,17 @@ def within_times(opening_times, start, finish):
     '''
     Returns True if the given start and finish datetime types describe
     a time window within the given opening times.
+
+    This function currently doesn't check for adjacent opening times so
+    it may return False for 7 consecutive 24 hour opening times if the
+    start and finish times cross midnight.
     '''
 
-    return True
+    start_info = get_dateinfo(start)
+    finish_info = get_dateinfo(finish)
+
+    for a, b in opening_times:
+        if start_info.offset >= a and finish_info.offset <= b:
+            return True
+
+    return False
