@@ -2,7 +2,7 @@
 import datetime
 from unittest import TestCase
 
-from hypothesis import given
+from hypothesis import assume, given
 from hypothesis.strategies import integers, lists
 from hypothesis.extra.datetime import datetimes
 
@@ -325,3 +325,72 @@ class SeatingPlanUnitTest(TestCase):
             'Bookings should be assigned to a table if they do not clash.'
         )
 
+###############################################################################
+
+class SpaceAvailableTest(TestCase):
+    pass
+
+
+###############################################################################
+
+class WithinTimesTest(TestCase):
+
+    @given(
+        context=datetimes(),
+        start=datetimes(),
+        finish=datetimes(),
+    )
+    def test_restaurant_open_true_only_if_restaurant_is_open(
+        self,
+        context,
+        start,
+        finish
+    ):
+        '''
+        restaurant_open should return True if the restaurant is open.
+        '''
+
+        year, month, day = context.year, context.month, context.day
+
+        start = start.replace(year=year, month=month, day=day)
+        finish = finish.replace(year=year, month=month, day=day)
+
+        assume(start < finish)
+
+        start_info = get_dateinfo(start)
+        finish_info = get_dateinfo(finish)
+
+        open_for_given_times=entities.OpeningTimes(
+            [(start_info.offset-1, finish_info.offset+1)]
+        )
+
+        closed_for_start=entities.OpeningTimes(
+            [(start_info.offset+1, finish_info.offset+1)]
+        )
+
+        closed_for_finish=entities.OpeningTimes(
+            [(start_info.offset-1, finish_info.offset-1)]
+        )
+
+        closed_for_both=entities.OpeningTimes(
+            [(start_info.offset+1, finish_info.offset-1)]
+        )
+
+        self.assertTrue(
+            usecases.within_times(open_for_given_times, start, finish),
+            'within_times should return True if times are suitable.'
+        )
+        self.assertFalse(
+            usecases.within_times(closed_for_start, start, finish),
+            'within_times should return False if start time is unsuitable.'
+        )
+
+        self.assertFalse(
+            usecases.within_times(closed_for_finish, start, finish),
+            'within_times should return False if finish time is unsuitable.'
+        )
+
+        self.assertFalse(
+            usecases.within_times(closed_for_both, start, finish),
+            'within_times should return False if times are unsuitable.'
+        )
