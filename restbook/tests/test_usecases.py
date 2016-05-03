@@ -302,26 +302,29 @@ class SeatingPlanUnitTest(TestCase):
 class SpaceAvailableTest(TestCase):
 
     @given(
-        tables=lists(integers(min_value=1, max_value=15))
+        tables=lists(integers(min_value=1, max_value=15), min_size=1)
     )
     def test_only_true_if_space_is_available(self, tables):
         '''
         space_available should only return True if there are enough tables.
         '''
 
+        start=datetime.datetime.now()
+        finish=datetime.datetime.now()
+
         single_cover = entities.Booking(
             reference='Smallest possible',
             covers=1,
-            start=datetime.datetime.now(),
-            finish=datetime.datetime.now()
+            start=start,
+            finish=finish
         )
 
         bookings = [
             entities.Booking(
                 reference='Safe example',
                 covers=covers,
-                start=datetime.datetime.now(),
-                finish=datetime.datetime.now()
+                start=start,
+                finish=finish
             )
             for covers in tables
         ]
@@ -341,7 +344,7 @@ class SpaceAvailableTest(TestCase):
                 tables=tables,
                 existing_bookings=bookings
             ),
-            'space_available should return False if there are enough tables.'
+            'space_available should return False if there not are enough tables.'
         )
 
 ###############################################################################

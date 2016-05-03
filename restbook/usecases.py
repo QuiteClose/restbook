@@ -78,8 +78,16 @@ def space_available(requested_booking, tables, existing_bookings):
     existing bookings.
     '''
 
+    if not tables:
+        return False
 
-    return False
+    previous_overflow = seating_plan(tables, existing_bookings)[None]
+
+    supposed_bookings = existing_bookings + [requested_booking]
+
+    subsequent_overflow = seating_plan(tables, supposed_bookings)[None]
+
+    return previous_overflow == subsequent_overflow
 
 ###############################################################################
 
