@@ -53,7 +53,7 @@ def seating_plan(datetime_context, start_time, end_time, tables, bookings):
         )
 
         for table in suitable_tables:
-            if plan[table.index]:
+            if [x for x in plan[table.index] if booking.overlaps(x)]:
                 continue
             else:
                 plan[table.index].append(booking)
