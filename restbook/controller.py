@@ -3,20 +3,30 @@
 
 ###############################################################################
 
+from collections import defaultdict
 from uuid import uuid1 as generate_id
 
 ##############################
 
-from . import entities
+from restbook import entities
+from restbook.usecases import space_available
 
 ###############################################################################
 
-''' Restaurants and bookings are stored in dictionaries with their
+'''
+Restaurants and bookings are stored in dictionaries with their
 unique id acting as the key.
 '''
 
 _restaurants = {}
 _bookings = {}
+
+'''
+We associate bookings with restaurants by listing them in a
+dictionary using the restaurant ID as the key.
+'''
+
+_bookings_by_restaurant = defaultdict(list)
 
 ###############################################################################
 
@@ -72,18 +82,24 @@ def booking_create(restaurant_id, reference, covers, start, finish):
     if not restaurant:
         return None
 
-    id = generate_id()
+    tables = restaurant.tables
 
-    booking = entities.Booking(
+    existing_bookings = _bookings_by_restaurant[restaurant_id]
+
+    requested_booking = entities.Booking(
         reference=reference,
         covers=covers,
         start=start,
         finish=finish
     )
 
-    _bookings[id] = booking
-
-    return id
+    if space_available(requested_booking, tables, existing_bookings):
+        id = generate_id()
+        _bookings[id] = requested_booking
+        existing_bookings.append(requested_booking)
+        return id
+    else:
+        return None
 
 ##############################
 
