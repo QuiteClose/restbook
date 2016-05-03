@@ -16,6 +16,7 @@ unique id acting as the key.
 '''
 
 _restaurants = {}
+_bookings = {}
 
 ###############################################################################
 
@@ -53,5 +54,36 @@ def restaurant_from_id(id):
 
     try:
         return _restaurants[id]
+    except KeyError:
+        return None
+
+###############################################################################
+
+def booking_create(restaurant_id, reference, covers, start, finish):
+
+    id = generate_id()
+
+    booking = entities.Booking(
+        reference=reference,
+        covers=covers,
+        start=start,
+        finish=finish
+    )
+
+    _bookings[id] = booking
+
+    return id
+
+##############################
+
+def booking_from_id(id):
+    '''
+    Attempts to retreive a Booking according to the UUID returned by
+    booking_create. Returns that Booking if found, otherwise returns
+    None.
+    '''
+
+    try:
+        return _bookings[id]
     except KeyError:
         return None

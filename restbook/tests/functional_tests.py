@@ -63,6 +63,11 @@ class BookingsFunctionalTest(TestCase):
         tables.
         '''
 
+        reference='Successful'
+        covers=1
+        start=datetime(2016, 5, 2, 13, 0)  # Monday 13.00
+        finish=datetime(2016, 5, 2, 15, 0) # Monday 15.00
+
         restaurant_id = controller.restaurant_create(
             name='Safe',
             description='Example',
@@ -74,10 +79,10 @@ class BookingsFunctionalTest(TestCase):
 
         booking_id = controller.booking_create(
             restaurant_id=restaurant_id,
-            reference='Successful',
-            covers=1,
-            start=datetime(2016, 5, 2, 13, 0), # Monday 13.00
-            finish=datetime(2016, 5, 2, 15, 0) # Monday 15.00
+            reference=reference,
+            covers=covers,
+            start=start,
+            finish=finish
         )
 
         self.assertIsNotNone(
