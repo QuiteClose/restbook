@@ -165,7 +165,7 @@ class SeatingPlanUnitTest(TestCase):
     @given(
         context=datetimes(),
         covers=integers(min_value=1, max_value=15),
-        tables=lists(integers(min_value=1, max_value=12))
+        tables=lists(integers(min_value=1, max_value=12), min_size=5)
     )
     def test_single_booking_assigned_to_smallest_table(
         self,
@@ -192,7 +192,7 @@ class SeatingPlanUnitTest(TestCase):
             finish=datetime.datetime(year, month, day, 13, 30),
         )
 
-        table_match = next((x for x in tables if x <= covers), None)
+        table_match = next((x for x in sorted(tables) if covers <= x), None)
 
         if table_match is not None:
             expected_table = tables.index(table_match)
@@ -216,4 +216,58 @@ class SeatingPlanUnitTest(TestCase):
             'or None if no table is suitable.'
         )
 
+
+##############################
+
+    @given(
+        context=datetimes(),
+        covers=integers(min_value=1, max_value=15),
+    )
+    def test_two_clashing_bookings_with_one_table(self, context, covers):
+        '''
+        If two bookings clash, the earlier booking should be assigned
+        to a table and the later booking assinged to None.
+        '''
+
+        year, month, day = context.year, context.month, context.day
+
+        weekday = get_dateinfo(context).weekday
+
+        start = entities.MinuteOffset.from_integers(weekday, 12, 0)
+        end = entities.MinuteOffset.from_integers(weekday, 14, 0)
+
+        bookings = [
+            entities.Booking(
+                reference='earlier',
+                covers=covers,
+                start=datetime.datetime(year, month, day, 12, 0),
+                finish=datetime.datetime(year, month, day, 13, 30),
+            ),
+            entities.Booking(
+                reference='later',
+                covers=covers,
+                start=datetime.datetime(year, month, day, 12, 30),
+                finish=datetime.datetime(year, month, day, 14, 0),
+            )
+        ]
+
+        plan = usecases.seating_plan(
+            datetime_context=context,
+            start_time=start,
+            end_time=end,
+            tables=[covers],
+            bookings=bookings
+        )
+
+        self.assertListEqual(
+            plan[None],
+            [x for x in bookings if x.reference == 'later'],
+            'The later booking should be assigned to None if bookings clash.'
+        )
+
+        self.assertListEqual(
+            plan[0],
+            [x for x in bookings if x.reference == 'earlier'],
+            'The earlier booking should get the table if bookings clash.'
+        )
 
