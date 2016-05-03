@@ -128,3 +128,8 @@ def booking_from_id(id):
         return _bookings[id]
     except KeyError:
         return None
+
+##############################
+
+def generate_report(restaurant_id, date):
+    return ''
