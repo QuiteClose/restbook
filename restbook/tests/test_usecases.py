@@ -11,60 +11,14 @@ from restbook.time import MinuteOffset, get_dateinfo
 
 ###############################################################################
 
-class SeatingPlanUnitTest(TestCase):
-
-    def test_bookings_assigned_to_None_if_no_tables(self):
-        '''
-        When a restaurant has no tables all bookings should be assigned
-        to the key None.
-        '''
-
-        # Monday 2nd May 2016
-        context = datetime.datetime(2016, 5, 2)
-        year, month, day = context.year, context.month, context.day
-
-        start_time = MinuteOffset.from_string('Monday 00.00')
-        end_time = MinuteOffset.from_string('Sunday 23.59')
-
-        bookings = [
-            entities.Booking(
-                reference='0',
-                covers=1,
-                start=datetime.datetime(year, month, day, 0, 0),
-                finish=datetime.datetime(year, month, day, 1, 0),
-            ),
-            entities.Booking(
-                reference='1',
-                covers=1,
-                start=datetime.datetime(year, month, day+1, 12, 0),
-                finish=datetime.datetime(year, month, day+1, 20, 0),
-            )
-        ]
-
-        plan = usecases.seating_plan(
-            datetime_context=context,
-            start_time=start_time,
-            end_time=end_time,
-            tables=[],
-            bookings=bookings
-        )
-
-        self.assertDictEqual(
-            {None: bookings},
-            plan,
-            'Valid bookings should be assigned to table None when no '
-            'table is available.'
-        )
-
-##############################
+class RelevantBookingsTest(TestCase):
 
     @given(
         context=datetimes()
     )
     def test_bookings_discarded_if_out_of_bounds(self, context):
         '''
-        Bookings that are out of bounds should not be in the dictionary
-        that is returned.
+        Bookings that are out of bounds should not be in the returned list.
         '''
 
         year, month, day = context.year, context.month, context.day
@@ -113,18 +67,61 @@ class SeatingPlanUnitTest(TestCase):
             )
         ]
 
-        plan = usecases.seating_plan(
+        kept = usecases.relevant_bookings(
+            bookings=bookings,
             datetime_context=context,
-            start_time=start,
-            end_time=end,
+            start_offset=start,
+            end_offset=end,
+        )
+
+        self.assertListEqual(
+            [x for x in bookings if x.reference == 'kept'],
+            kept,
+            'Bookings should be returned only if they are within the time window.'
+        )
+
+###############################################################################
+
+class SeatingPlanUnitTest(TestCase):
+
+    def test_bookings_assigned_to_None_if_no_tables(self):
+        '''
+        When a restaurant has no tables all bookings should be assigned
+        to the key None.
+        '''
+
+        # Monday 2nd May 2016
+        context = datetime.datetime(2016, 5, 2)
+        year, month, day = context.year, context.month, context.day
+
+        start_time = MinuteOffset.from_string('Monday 00.00')
+        end_time = MinuteOffset.from_string('Sunday 23.59')
+
+        bookings = [
+            entities.Booking(
+                reference='0',
+                covers=1,
+                start=datetime.datetime(year, month, day, 0, 0),
+                finish=datetime.datetime(year, month, day, 1, 0),
+            ),
+            entities.Booking(
+                reference='1',
+                covers=1,
+                start=datetime.datetime(year, month, day+1, 12, 0),
+                finish=datetime.datetime(year, month, day+1, 20, 0),
+            )
+        ]
+
+        plan = usecases.seating_plan(
             tables=[],
             bookings=bookings
         )
 
         self.assertDictEqual(
-            {None: [x for x in bookings if x.reference == 'kept']},
+            {None: bookings},
             plan,
-            'Bookings should be discarded if they are not within time.'
+            'Valid bookings should be assigned to table None when no '
+            'table is available.'
         )
 
 ##############################
@@ -139,9 +136,6 @@ class SeatingPlanUnitTest(TestCase):
         '''
 
         plan = usecases.seating_plan(
-            datetime_context=datetime.datetime.now(),
-            start_time=0,
-            end_time=0,
             tables=tables,
             bookings=[]
         )
@@ -163,33 +157,20 @@ class SeatingPlanUnitTest(TestCase):
 ##############################
 
     @given(
-        context=datetimes(),
         covers=integers(min_value=1, max_value=15),
         tables=lists(integers(min_value=1, max_value=12), min_size=5)
     )
-    def test_single_booking_assigned_to_smallest_table(
-        self,
-        context,
-        covers,
-        tables
-    ):
+    def test_single_booking_assigned_to_smallest_table(self, covers, tables):
         '''
         A single booking should be assigned to the smallest
         available table or None if no table is available.
         '''
 
-        year, month, day = context.year, context.month, context.day
-
-        weekday = get_dateinfo(context).weekday
-
-        start = entities.MinuteOffset.from_integers(weekday, 12, 0)
-        end = entities.MinuteOffset.from_integers(weekday, 14, 0)
-
         booking = entities.Booking(
             reference='kept',
             covers=covers,
-            start=datetime.datetime(year, month, day, 12, 30),
-            finish=datetime.datetime(year, month, day, 13, 30),
+            start=datetime.datetime.now(),
+            finish=datetime.datetime.now(),
         )
 
         table_match = next((x for x in sorted(tables) if covers <= x), None)
@@ -200,9 +181,6 @@ class SeatingPlanUnitTest(TestCase):
             expected_table = None
 
         plan = usecases.seating_plan(
-            datetime_context=context,
-            start_time=start,
-            end_time=end,
             tables=tables,
             bookings=[booking]
         )
@@ -252,9 +230,6 @@ class SeatingPlanUnitTest(TestCase):
         ]
 
         plan = usecases.seating_plan(
-            datetime_context=context,
-            start_time=start,
-            end_time=end,
             tables=[covers],
             bookings=bookings
         )
@@ -306,9 +281,6 @@ class SeatingPlanUnitTest(TestCase):
         ]
 
         plan = usecases.seating_plan(
-            datetime_context=context,
-            start_time=start,
-            end_time=end,
             tables=[covers],
             bookings=bookings
         )
