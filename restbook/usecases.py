@@ -93,12 +93,9 @@ def space_available(requested_booking, tables, existing_bookings):
 
 def within_times(opening_times, start, finish):
     '''
-    Returns True if the given start and finish datetime types describe
-    a time window within the given opening times.
-
-    This function currently doesn't check for adjacent opening times so
-    it may return False for 7 consecutive 24 hour opening times if the
-    start and finish times cross midnight.
+    Returns an OpeningTimes object containing only those opening times
+    from the given opening_times that fall within the given start and
+    finish datetimes.
     '''
 
     start_info = get_dateinfo(start)
