@@ -124,6 +124,33 @@ class ControllerUnitTest(TestCase):
 
 ##############################
 
+    def test_can_booking_fails_without_restaurant(self):
+        '''
+        We should be able to create bookings if the restaurant has
+        space.
+        '''
+
+        restaurant_id = None
+        reference='Successful'
+        covers=1
+        start=datetime(2016, 5, 2, 13, 0)  # Monday 13.00
+        finish=datetime(2016, 5, 2, 15, 0) # Monday 15.00
+
+        booking_id = controller.booking_create(
+            restaurant_id=restaurant_id,
+            reference=reference,
+            covers=covers,
+            start=start,
+            finish=finish
+        )
+
+        self.assertIsNone(
+            booking_id,
+            'Bookings should fail without a restaurant.'
+        )
+
+##############################
+
     def test_can_retreive_created_bookings(self):
         '''
         After creating a booking we should be able to retreive it.
