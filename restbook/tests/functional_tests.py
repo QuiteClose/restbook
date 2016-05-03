@@ -1,4 +1,5 @@
 
+from datetime import datetime
 from unittest import TestCase
 
 from hypothesis import assume, given
@@ -9,15 +10,10 @@ from restbook.tests import strategies
 
 ###############################################################################
 
-class ControllerFunctionalTest(TestCase):
+class RestaurantsFunctionalTest(TestCase):
     '''
-    Functional tests for a controller module.
+    Functional tests for restuarants.
     '''
-
-    def setUp(self):
-        self.controller = controller
-
-##############################
 
     @given(
         name=text(),
@@ -38,7 +34,7 @@ class ControllerFunctionalTest(TestCase):
 
         assume(name != '')
 
-        unique_id = self.controller.restaurant_create(
+        unique_id = controller.restaurant_create(
             name=name,
             description=description,
             opening_times=opening_times,
@@ -47,10 +43,52 @@ class ControllerFunctionalTest(TestCase):
 
         assert(unique_id is not None)
 
-        restaurant = self.controller.restaurant_from_id(unique_id)
+        restaurant = controller.restaurant_from_id(unique_id)
 
         assert(restaurant.name == name)
         assert(restaurant.description == description)
         assert(list(restaurant.opening_times) == list(opening_times))
         assert(list(restaurant.tables) == list(tables))
+
+###############################################################################
+
+class BookingsFunctionalTest(TestCase):
+    '''
+    We should be able to create bookings and access them afterwards.
+    '''
+
+    def test_can_make_a_booking_and_access_it(self):
+        '''
+        If a restaurant is open and has space we should be able to book 
+        tables.
+        '''
+
+        restaurant_id = controller.restaurant_create(
+            name='Safe',
+            description='Example',
+            opening_times=[
+                ('Monday 12.00', 'Monday 16.00'),
+            ],
+            tables=[1]
+        )
+
+        booking_id = controller.booking_create(
+            restaurant_id=restaurant_id,
+            reference='Successful',
+            covers=1,
+            start=datetime(2016, 5, 2, 13, 0), # Monday 13.00
+            finish=datetime(2016, 5, 2, 15, 0) # Monday 15.00
+        )
+
+        self.assertIsNotNone(
+            booking_id,
+            'We should be able to create a booking if the restaurant is open.'
+        )
+
+        booking = controller.booking_from_id(booking_id)
+
+        assert(booking.reference == reference)
+        assert(booking.covers == covers)
+        assert(booking.start == start)
+        assert(booking.finish == finish)
 
