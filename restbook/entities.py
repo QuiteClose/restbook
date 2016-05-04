@@ -23,13 +23,13 @@ class Restaurant:
         '''
 
         if not restaurant.name or str(restaurant.name) == '':
-            raise ValueError
+            raise ValueError('Restaurants must have a name.')
         elif not restaurant.opening_times.is_valid():
-            raise ValueError
+            raise ValueError('Opening times must be valid.')
 
         for table_size in restaurant.tables:
             if not isinstance(table_size, int) or table_size < 1:
-                raise ValueError
+                raise ValueError('Table sizes must be positive integers.')
 
         return True
 
@@ -112,17 +112,19 @@ class OpeningTimes(UserList):
         if not len(opening_times):
             return True
         elif opening_times[0][0] < 0:
-            raise ValueError
+            raise ValueError('First opening time cannot start in previous week.')
         elif opening_times[0][0] < (opening_times[-1][1]-MinuteOffset.MINUTES_IN_WEEK):
-            raise ValueError
+            raise ValueError('First opening time cannot start in following week.')
 
         previous_end_time = 0
 
         for period in opening_times:
-            if period[0] < previous_end_time or period[0] > MinuteOffset.MINUTES_IN_WEEK:
-                raise ValueError
+            if period[0] < previous_end_time:
+                raise ValueError('Opening times must be sequential.')
+            if period[0] > MinuteOffset.MINUTES_IN_WEEK:
+                raise ValueError('Opening times must not start in following week.')
             elif period[0] > period[1]:
-                raise ValueError
+                raise ValueError('Opening times must start before they finish.')
 
             previous_end_time = period[1]
 
@@ -188,7 +190,7 @@ class Booking:
     def validate(cls, booking):
 
         if booking.start > booking.finish:
-            raise ValueError
+            raise ValueError('Booking must start before it finishes.')
 
     def __init__(self, reference, covers, start, finish):
         self.reference = reference

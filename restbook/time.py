@@ -44,11 +44,13 @@ class MinuteOffset(int):
         day is greather-than 6 or if minute is greater-than 59.
         '''
 
-        if day > 6 or minute > 59:
-            raise ValueError
+        if day > 6:
+            raise ValueError('Given day must be in range 0..6')
+        elif minute > 59:
+            raise ValueError('Given minute must be in range 0..59')
 
         if day < 0 or hour < 0 or minute < 0:
-            raise ValueError
+            raise ValueError('Given values must be 0 or greater.')
 
         day_offset = day * cls.MINUTES_IN_DAY
         hour_offset = hour * cls.MINUTES_IN_HOUR
@@ -68,7 +70,11 @@ class MinuteOffset(int):
         match = re.match(cls.STRING_PATTERN, string)
 
         if not match:
-            raise ValueError
+            raise ValueError(
+                'Given string must conform to pattern {}'.format(
+                    cls.STRING_FORMAT
+                )
+            )
 
         day = match.group('day').capitalize()
         hour = int(match.group('hour'))
