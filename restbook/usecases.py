@@ -125,13 +125,10 @@ def fulfills_times(opening_times, start, finish):
         time_opens, time_closes = opening_times[n]
 
         if not current_group:
-            print('Appending to new list.')
             current_group.append(opening_times[n])
         elif current_group[-1][1] == time_opens-1:
-            print('Appending to EXISTING list.')
             current_group.append(opening_times[n])
         else:
-            print('Finished current_group.')
             adjacent_groups.append(current_group)
             current_group = list().append(opening_times[n])
 
