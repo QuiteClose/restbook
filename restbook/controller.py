@@ -9,7 +9,7 @@ from uuid import uuid1 as generate_id
 ##############################
 
 from restbook import entities
-from restbook.usecases import relevant_bookings, space_available, within_times 
+from restbook.usecases import relevant_bookings, space_available, fulfills_times 
 
 ###############################################################################
 
@@ -82,7 +82,7 @@ def booking_create(restaurant_id, reference, covers, start, finish):
     if not restaurant:
         return None
 
-    restaurant_open = within_times(
+    restaurant_open = fulfills_times(
         opening_times=restaurant.opening_times,
         start=start,
         finish=finish

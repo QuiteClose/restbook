@@ -349,21 +349,22 @@ class SpaceAvailableTest(TestCase):
 
 ###############################################################################
 
-class WithinTimesTest(TestCase):
+class FulfillsTimesTest(TestCase):
 
     @given(
         context=datetimes(),
         start=datetimes(),
         finish=datetimes(),
     )
-    def test_restaurant_open_true_only_if_restaurant_is_open(
+    def test_fulfills_times_when_window_within_opening_time(
         self,
         context,
         start,
         finish
     ):
         '''
-        restaurant_open should return True if the restaurant is open.
+        fulfills_times should return a list with an opening time
+        only if one fulfills the time window given.
         '''
 
         year, month, day = context.year, context.month, context.day
@@ -373,41 +374,165 @@ class WithinTimesTest(TestCase):
 
         assume(start < finish)
 
-        start_info = get_dateinfo(start)
-        finish_info = get_dateinfo(finish)
+        start_offset = get_dateinfo(start).offset
+        finish_offset = get_dateinfo(finish).offset
 
         open_for_given_times=entities.OpeningTimes(
-            [(start_info.offset-1, finish_info.offset+1)]
+            [(start_offset-1, finish_offset+1)]
+        )
+
+        open_precisely=entities.OpeningTimes(
+            [(start_offset, finish_offset)]
         )
 
         closed_for_start=entities.OpeningTimes(
-            [(start_info.offset+1, finish_info.offset+1)]
+            [(start_offset+1, finish_offset)]
         )
 
         closed_for_finish=entities.OpeningTimes(
-            [(start_info.offset-1, finish_info.offset-1)]
+            [(start_offset, finish_offset-1)]
         )
 
         closed_for_both=entities.OpeningTimes(
-            [(start_info.offset+1, finish_info.offset-1)]
+            [(start_offset+1, finish_offset-1)]
         )
 
-        self.assertEqual(
-            usecases.within_times(open_for_given_times, start, finish),
-            open_for_given_times,
-            'within_times should return suitable opening times.'
+        self.assertListEqual(
+            list(usecases.fulfills_times(open_for_given_times, start, finish)),
+            list(open_for_given_times),
+            'fulfills_times should return suitable opening times.'
         )
-        self.assertFalse(
-            usecases.within_times(closed_for_start, start, finish),
-            'within_times should return (None, None) if start time is unsuitable.'
+        self.assertListEqual(
+            list(usecases.fulfills_times(open_precisely, start, finish)),
+            list(open_precisely),
+            'fulfills_times should return suitable opening times.'
+        )
+        self.assertListEqual(
+            list(usecases.fulfills_times(closed_for_start, start, finish)),
+            [],
+            'fulfills_times should return [] if start time is unsuitable.'
         )
 
-        self.assertFalse(
-            usecases.within_times(closed_for_finish, start, finish),
-            'within_times should return (None, None) if finish time is unsuitable.'
+        self.assertListEqual(
+            list(usecases.fulfills_times(closed_for_finish, start, finish)),
+            [],
+            'fulfills_times should return [] if finish time is unsuitable.'
         )
 
-        self.assertFalse(
-            usecases.within_times(closed_for_both, start, finish),
-            'within_times should return (None, None) if times are unsuitable.'
+        self.assertListEqual(
+            list(usecases.fulfills_times(closed_for_both, start, finish)),
+            [],
+            'fulfills_times should return [] if times are unsuitable.'
         )
+
+##############################
+
+    @given(
+        context=datetimes(),
+        start=datetimes(),
+        finish=datetimes(),
+    )
+    def test_fulfills_times_when_window_outside_opening_time(
+        self,
+        context,
+        start,
+        finish
+    ):
+        '''
+        fulfills_times should return a list with opening times if
+        a chain of adjacent opening times fulfills the window.
+        '''
+
+        year, month, day = context.year, context.month, context.day
+
+        start = start.replace(year=year, month=month, day=day)
+        finish = finish.replace(year=year, month=month, day=day)
+
+
+        start_offset = get_dateinfo(start).offset
+        finish_offset = get_dateinfo(finish).offset
+
+        assume(start_offset < finish_offset)
+
+        middle_offset = start_offset + ((finish_offset-start_offset)//2)
+
+        adjacent_chain=entities.OpeningTimes(
+            [(start_offset, middle_offset), (middle_offset+1, finish_offset)]
+        )
+
+        broken_chain=entities.OpeningTimes(
+            [(start_offset, middle_offset-1), (middle_offset+1, finish_offset)]
+        )
+
+        self.assertListEqual(
+            list(usecases.fulfills_times(adjacent_chain, start, finish)),
+            list(adjacent_chain),
+            'adjacent chains of opening times should fulfill time windows.'
+        )
+        self.assertListEqual(
+            list(usecases.fulfills_times(broken_chain, start, finish)),
+            [],
+            'disparate opening times should not fulfill time windows.'
+        )
+
+###############################################################################
+
+class OpensWithinTimesTest(TestCase):
+
+    @given(
+        context=datetimes(),
+        start=datetimes(),
+        finish=datetimes(),
+    )
+    def test_opens_within_times_when_start_offset_within_time_window(
+        self,
+        context,
+        start,
+        finish
+    ):
+        '''
+        starts_
+        '''
+
+        year, month, day = context.year, context.month, context.day
+
+        start = start.replace(year=year, month=month, day=day)
+        finish = finish.replace(year=year, month=month, day=day)
+
+
+        start_offset = get_dateinfo(start).offset
+        finish_offset = get_dateinfo(finish).offset
+
+        assume(start_offset < finish_offset)
+
+        starts_before=entities.OpeningTimes(
+            [(start_offset-1, finish_offset-1)]
+        )
+
+        starts_within=entities.OpeningTimes(
+            [(start_offset+1, finish_offset+1)]
+        )
+
+        starts_after=entities.OpeningTimes(
+            [(finish_offset+1, finish_offset+2)]
+        )
+
+
+        self.assertListEqual(
+            list(usecases.opens_within_times(starts_before, start, finish)),
+            [],
+            'opens_within_times should not return opening times that start before the window.'
+        )
+
+        self.assertListEqual(
+            list(usecases.opens_within_times(starts_within, start, finish)),
+            list(starts_within),
+            'opens_within_times should return matching opening times.'
+        )
+
+        self.assertListEqual(
+            list(usecases.opens_within_times(starts_after, start, finish)),
+            [],
+            'opens_within_times should not return opening times that start after the window.'
+        )
+

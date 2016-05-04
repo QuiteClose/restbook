@@ -3,6 +3,7 @@
 
 from collections import OrderedDict, namedtuple
 
+from restbook.entities import OpeningTimes
 from restbook.time import get_dateinfo
 
 ###############################################################################
@@ -91,17 +92,75 @@ def space_available(requested_booking, tables, existing_bookings):
 
 ###############################################################################
 
-def within_times(opening_times, start, finish):
+def fulfills_times(opening_times, start, finish):
     '''
-    Returns an OpeningTimes object containing only those opening times
-    from the given opening_times that fall within the given start and
-    finish datetimes.
+    Returns an OpeningTimes list from the given opening_times that
+    fulfills the given start and finish datetimes. If the time window
+    is not entirely covered by the given opening_times then an empty
+    list is returned.
     '''
+    start_offset = get_dateinfo(start).offset
+    finish_offset = get_dateinfo(finish).offset
 
-    start_info = get_dateinfo(start)
-    finish_info = get_dateinfo(finish)
-
-    return [
-        (a, b) for a, b in opening_times
-        if start_info.offset >= a and finish_info.offset <= b
+    fulfilled = [
+        (time_opens, time_closes) for time_opens, time_closes in opening_times
+        if start_offset >= time_opens and finish_offset <= time_closes
     ]
+
+    '''
+    Simple case: a single opening time fulfills the start and finish.
+    '''
+
+    if fulfilled:
+        return OpeningTimes(fulfilled)
+
+    '''
+    Otherwise we need to check for a possible chain of adjacent opening times.
+    '''
+
+    adjacent_groups = []
+    current_group = list()
+
+    for n in range(len(opening_times)):
+        time_opens, time_closes = opening_times[n]
+
+        if not current_group:
+            print('Appending to new list.')
+            current_group.append(opening_times[n])
+        elif current_group[-1][1] == time_opens-1:
+            print('Appending to EXISTING list.')
+            current_group.append(opening_times[n])
+        else:
+            print('Finished current_group.')
+            adjacent_groups.append(current_group)
+            current_group = list().append(opening_times[n])
+
+    if current_group:
+        adjacent_groups.append(current_group)
+
+    for group in adjacent_groups:
+        time_opens = group[0][0]
+        time_closes = group[-1][1]
+
+        if start_offset >= time_opens and finish_offset <= time_closes:
+            return OpeningTimes(group)
+
+    return OpeningTimes()
+
+###############################################################################
+
+def opens_within_times(opening_times, start, finish):
+    '''
+    Filters the given OpeningTimes object to only include opening times
+    that start with the given start and finish datetimes.
+    '''
+
+    start_offset = get_dateinfo(start).offset
+    finish_offset = get_dateinfo(finish).offset
+    
+    return OpeningTimes(
+        [
+            (time_opens, time_closes) for time_opens, time_closes in opening_times
+            if start_offset <= time_opens and time_opens <= finish_offset
+        ]
+    )

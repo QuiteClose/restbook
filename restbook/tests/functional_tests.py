@@ -6,7 +6,7 @@ from hypothesis import assume, given
 from hypothesis.extra.datetime import datetimes
 from hypothesis.strategies import integers, lists, text
 
-from restbook import controller
+from restbook import controller, usecases
 from restbook.tests import strategies
 
 ###############################################################################
@@ -249,7 +249,7 @@ class ReportFunctionalTest(TestCase):
 
         report = controller.generate_report(restaurant_id, date)
 
-        matching_times = starting_within_times(opening_times, start_of_day, end_of_day)
+        matching_times = usecases.opens_within_times(opening_times, start_of_day, end_of_day)
 
         for opening_time, closing_time in matching_times:
             assert('{}-{}'.format(opening_time, closing_time) in report)

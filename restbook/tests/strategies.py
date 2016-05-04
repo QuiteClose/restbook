@@ -4,6 +4,7 @@ Custom strategies for use with the Hypothesis test framework.
 '''
 
 from restbook.time import MinuteOffset
+from restbook.entities import OpeningTimes
 
 from hypothesis.strategies import integers, lists, tuples
 from hypothesis.strategies import composite
@@ -94,7 +95,7 @@ def opening_times_sample(
         example.append(period)
         previous_endtime = period[1]
 
-    return example
+    return OpeningTimes(example)
 
 
 '''
@@ -111,6 +112,6 @@ opening_times = opening_times_sample(
 
 
 opening_times_strings = opening_times.map(
-    lambda x: [(str(MinuteOffset(n[0])), str(MinuteOffset(n[1]))) for n in x]
+    lambda x: OpeningTimes([(str(MinuteOffset(n[0])), str(MinuteOffset(n[1]))) for n in x])
 )
 
