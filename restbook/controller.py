@@ -9,7 +9,7 @@ from uuid import uuid1 as generate_id
 ##############################
 
 from restbook import entities
-from restbook.usecases import relevant_bookings, space_available, fulfills_times 
+from restbook import usecases as use
 
 ###############################################################################
 
@@ -82,7 +82,7 @@ def booking_create(restaurant_id, reference, covers, start, finish):
     if not restaurant:
         return None
 
-    restaurant_open = fulfills_times(
+    restaurant_open = use.fulfills_times(
         opening_times=restaurant.opening_times,
         start=start,
         finish=finish
@@ -95,7 +95,7 @@ def booking_create(restaurant_id, reference, covers, start, finish):
 
     tables = restaurant.tables
 
-    existing_bookings = relevant_bookings(
+    existing_bookings = use.relevant_bookings(
         bookings=_bookings_by_restaurant[restaurant_id],
         datetime_context=start,
         start_offset=opening_time,
@@ -109,7 +109,7 @@ def booking_create(restaurant_id, reference, covers, start, finish):
         finish=finish
     )
 
-    if space_available(requested_booking, tables, existing_bookings):
+    if use.space_available(requested_booking, tables, existing_bookings):
         id = generate_id()
         _bookings[id] = requested_booking
         _bookings_by_restaurant[restaurant_id].append(requested_booking)
@@ -134,6 +134,37 @@ def booking_from_id(id):
 ##############################
 
 def generate_report(restaurant_id, date):
+
     restaurant = restaurant_from_id(restaurant_id)
 
-    return str(restaurant)
+    report = ['Restaurant: {}'.format(restaurant.name)]
+
+    start_of_day = date.replace(hour=0, minute=0)
+    end_of_day = date.replace(hour=23, minute=59)
+
+    matching_times = use.opens_within_times(
+        opening_times=restaurant.opening_times,
+        start=start_of_day,
+        finish=end_of_day
+    )
+
+    for time_opens, time_closes in matching_times:
+        report.append('\tOpening Period: {}-{}'.format(time_opens, time_closes))
+
+        booked = use.relevant_bookings(
+            bookings=_bookings_by_restaurant[restaurant_id],
+            datetime_context=date,
+            start_offset=time_opens,
+            end_offset=time_closes
+        )
+
+        for table, bookings in use.seating_plan(restaurant.tables, booked).items():
+            report.append(
+                '\t\t{table_number}: {bookings}'.format(
+                    table_number=table,
+                    bookings=[str(x) for x in bookings]
+                )
+            )
+
+    return '\n'.join(report)
+

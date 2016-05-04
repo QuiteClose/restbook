@@ -209,6 +209,8 @@ class ReportFunctionalTest(TestCase):
         The restaurant name should appear in the generated report.
         '''
 
+        assume(name != '')
+
         restaurant_id= controller.restaurant_create(
             name=name,
             description=description,

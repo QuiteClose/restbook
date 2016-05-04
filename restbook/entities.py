@@ -196,6 +196,15 @@ class Booking:
         self.start = start
         self.finish = finish
 
+    def __str__(self):
+        return '{reference} x{covers} @ {hour:02d}.{minute:02d}'.format(
+            reference=self.reference,
+            covers=self.covers,
+            hour=self.start.hour,
+            minute=self.start.minute
+        )
+
+##############################
 
     def is_valid(self):
         '''
@@ -208,6 +217,8 @@ class Booking:
             return False
         else:
             return True
+
+##############################
 
     def within(self, datetime_context, start_time, end_time):
         '''
