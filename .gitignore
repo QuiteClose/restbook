@@ -5,6 +5,8 @@ __pycache__/
 # setuptools
 *.egg-info
 *.*/
+build/
+dist/
 
 # temporary files
 *.swp

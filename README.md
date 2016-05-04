@@ -1,6 +1,12 @@
 
-Create virtualenv:
+Running the tests:
 
 ```bash
-virtualenv -p python3.5 venv
+python3.5 setup.py test
+```
+
+Running the example:
+
+```bash
+python3.5 example.py
 ```
