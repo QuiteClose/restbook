@@ -1,12 +1,13 @@
 
 from datetime import datetime
 from unittest import TestCase
+import uuid
 
 from hypothesis import assume, given
 from hypothesis.extra.datetime import datetimes
 from hypothesis.strategies import integers, lists, text
 
-from restbook import controller, usecases
+from restbook import controller, entities, usecases
 from restbook.tests import strategies
 
 ###############################################################################
@@ -253,4 +254,63 @@ class ReportFunctionalTest(TestCase):
 
         for opening_time, closing_time in matching_times:
             assert('{}-{}'.format(opening_time, closing_time) in report)
+
+##############################
+
+    @given(
+        date=datetimes(),
+        tables=lists(integers(min_value=1, max_value=15), min_size=1)
+    )
+    def test_bookings_appear_in_report(
+        self,
+        date,
+        tables
+    ):
+        '''
+        The bookings for a given day should appear in the report.
+        '''
+
+        start_of_day = date.replace(hour=0, minute=0)
+        end_of_day = date.replace(hour=23, minute=59)
+
+        restaurant_id= controller.restaurant_create(
+            name='Safe',
+            description='Example',
+            opening_times=entities.OpeningTimes(
+                [
+                    ('Monday 00.00', 'Monday 23.59'),
+                    ('Tuesday 00.00', 'Tuesday 23.59'),
+                    ('Wednesday 00.00', 'Wednesday 23.59'),
+                    ('Thursday 00.00', 'Thursday 23.59'),
+                    ('Friday 00.00', 'Friday 23.59'),
+                    ('Saturday 00.00', 'Saturday 23.59'),
+                    ('Sunday 00.00', 'Sunday 23.59'),
+                ]
+            ),
+            tables=tables
+        )
+
+        bookings = [
+            entities.Booking(
+                reference=str(uuid.uuid1()),
+                covers=covers,
+                start=date,
+                finish=date
+            )
+            for covers in tables
+        ]
+
+        for booking in bookings:
+            controller.booking_create(
+                restaurant_id=restaurant_id,
+                reference=booking.reference,
+                covers=booking.covers,
+                start=booking.start,
+                finish=booking.finish
+            )
+
+        report = controller.generate_report(restaurant_id, date)
+
+        for booking in bookings:
+            assert('{} x{}'.format(booking.reference, booking.covers) in report)
 
