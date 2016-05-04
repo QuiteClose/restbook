@@ -149,7 +149,7 @@ def generate_report(restaurant_id, date):
     )
 
     for time_opens, time_closes in matching_times:
-        report.append('\tOpening Period: {}-{}'.format(time_opens, time_closes))
+        report.append('Opening Period: {}-{}'.format(time_opens, time_closes))
 
         booked = use.relevant_bookings(
             bookings=_bookings_by_restaurant[restaurant_id],
@@ -158,9 +158,10 @@ def generate_report(restaurant_id, date):
             end_offset=time_closes
         )
 
+        report.append('Tables:')
         for table, bookings in use.seating_plan(restaurant.tables, booked).items():
             report.append(
-                '\t\t{table_number}: {bookings}'.format(
+                '\t{table_number}: {bookings}'.format(
                     table_number=table,
                     bookings=[str(x) for x in bookings]
                 )
